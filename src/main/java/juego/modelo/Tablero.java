@@ -1,5 +1,6 @@
 package juego.modelo;
 
+import juego.util.CoordenadasIncorrectasException;
 import juego.util.Sentido;
 
 import static juego.modelo.Color.*;
@@ -47,7 +48,6 @@ public class Tablero {
      * sus correspondientes coordenadas y colores.
      */
 
-
     /**
      * El método buscarTorre obtiene la celda que contiene la torre del turno y color indicada.
      */
@@ -67,7 +67,7 @@ public class Tablero {
     /**
      * El método colocar(Torre, Celda) coloca la torre en la celda indicada (método sobrecargado).
      */
-    public void colocar(Torre torre, Celda celda) {
+    public void colocar(Torre torre, Celda celda) throws CoordenadasIncorrectasException {
         torre.establecerCelda(celda);
         celda.establecerTorre(torre);
     }
@@ -79,7 +79,7 @@ public class Tablero {
      * ◦ Nota: todos los métodos sobrecargados colocar deben realizar el doble enganche entre torre y
      * celda.
      */
-    public void colocar(Torre torre, String notacionAlgebraica) {
+    public void colocar(Torre torre, String notacionAlgebraica) throws CoordenadasIncorrectasException {
         Celda celda = obtenerCeldaParaNotacionAlgebraica(notacionAlgebraica);
         // tengo dos opciones, usar el mismo codigo de colocar original o llamar al metodo.
         // torre.establecerCelda(celda);
@@ -92,7 +92,7 @@ public class Tablero {
      * valores de fila y columna son incorrectos (no están en los límites del tablero), no se hace nada
      * (método sobrecargado)
      */
-    public void colocar(Torre torre, int fila, int columna) {
+    public void colocar(Torre torre, int fila, int columna) throws CoordenadasIncorrectasException {
         Celda celda = obtenerCelda(fila, columna);
         colocar(torre, celda);
     }
@@ -106,7 +106,7 @@ public class Tablero {
      * No se tiene en cuenta el estado de las celdas origen y destino, solo el de las celdas entre medias  para
      * comprobar si hay torres
      */
-    public boolean estanVaciasCeldasEntre(Celda origen, Celda destino) {
+    public boolean estanVaciasCeldasEntre(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
         Sentido sentido = obtenerSentido(origen, destino);
         if (sentido == null) {
@@ -140,7 +140,7 @@ public class Tablero {
      * El método moverTorre mueve la torre de la celda origen a destino. Si no hay torre en origen, o la
      * celda destino no está vacía, no se hace nada.
      */
-    public void moverTorre(Celda origen, Celda destino) {
+    public void moverTorre(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
         if (origen.estaVacia() || !destino.estaVacia()) {
             return;
@@ -153,7 +153,7 @@ public class Tablero {
     /**
      * El método obtenerCelda, devuelve la referencia a la celda del tablero.
      */
-    public Celda obtenerCelda(int fila, int columna) {
+    public Celda obtenerCelda(int fila, int columna) throws CoordenadasIncorrectasException {
         if (estaFueraDeRango(fila, columna))
             return null;
         Celda celda = matriz[fila][columna];
@@ -170,7 +170,7 @@ public class Tablero {
      * introducida en notación algebraica (e.g. con "a1c3" retorna la celda en [5][2]). Si el formato
      * de texto es incorrecto retorna null.
      */
-    public Celda obtenerCeldaDestinoEnJugada(String textoJugada) {
+    public Celda obtenerCeldaDestinoEnJugada(String textoJugada) throws CoordenadasIncorrectasException {
 
 //        char[] caracteres = textoJugada.toLowerCase().toCharArray();
 //        if (caracteres.length != 4) {
@@ -196,7 +196,7 @@ public class Tablero {
      * introducida en notación algebraica (e.g. con "a1c3" retorna la celda en [7][0]). Si el formato
      * de texto es incorrecto retorna null.
      */
-    public Celda obtenerCeldaOrigenEnJugada(String textoJugada) {
+    public Celda obtenerCeldaOrigenEnJugada(String textoJugada) throws CoordenadasIncorrectasException {
         char[] caracteres = textoJugada.toLowerCase().toCharArray();
         if (caracteres.length != 4) {
             return null;
@@ -225,7 +225,7 @@ public class Tablero {
     //mapaFilas.put('1', 7);
     //mapaFilas.put('2', 6);
     //int fila = mapaFilas.get(filaChar);
-    public Celda obtenerCeldaParaNotacionAlgebraica(String texto) {
+    public Celda obtenerCeldaParaNotacionAlgebraica(String texto) throws CoordenadasIncorrectasException {
         char[] caracteres = texto.toLowerCase().toCharArray();
         if (caracteres.length != 2) {
             return null;
@@ -265,7 +265,7 @@ public class Tablero {
      * celda en notación algebraica (e.g. con la celda [7][0] se retorna "a1"). Si la celda no pertenece
      * al tablero se retorna "--".
      */
-    public String obtenerCoordenadasEnNotacionAlgebraica(Celda celda) {
+    public String obtenerCoordenadasEnNotacionAlgebraica(Celda celda) throws CoordenadasIncorrectasException {
         if (estaFueraDeRango(celda.obtenerFila(), celda.obtenerColumna())) {
             return "--";
         }
@@ -281,7 +281,7 @@ public class Tablero {
      * [5][2] se retorna "a1c3"). Si alguna celda no pertenece al tablero, su texto correspondiente es
      * "--".
      */
-    public String obtenerJugadaEnNotacionAlgebraica(Celda origen, Celda destino) {
+    public String obtenerJugadaEnNotacionAlgebraica(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
         return obtenerCoordenadasEnNotacionAlgebraica(origen) + obtenerCoordenadasEnNotacionAlgebraica(destino);
     }
 
@@ -330,7 +330,7 @@ public class Tablero {
      * Si las celda origen y destino no están alineadas en alguno de los sentidos definidos en la
      * enumeración Sentido, se devuelve null.
      */
-    public Sentido obtenerSentido(Celda origen, Celda destino) {
+    public Sentido obtenerSentido(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
         Sentido x = null;
 
@@ -432,7 +432,43 @@ public class Tablero {
         }
         return "----" + espacioFinal;
     }
+
     //TODO: AQUI COMIENZA EL CODIGO NUEVO
 
+    /**
+     * El método buscarCeldaOrigen(Turno, Color) devuelve la celda de dicho color, en la fila de origen inicial del turno
+     * indicado (primera fila para turno blanco y última fila para turno negro).
+     */
+    public Celda buscarCeldaOrigen(Turno turno, Color color) {
 
+        return null;
+    }
+    /**
+    *El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
+     * contrario
+    */
+    public boolean estaEntablero(int fila, int columna) {
+
+        return false;
+    }
+
+    /**
+     * El método hayTorreColorContrario(Turno) comprueba si hay una torre de dicho turno, en la fila de origen o salida
+     * del turno contrario. Coincide con la condición de victoria en una ronda.
+     */
+    public boolean hayTorreColorContrario(Turno turno) {
+
+        return false;
+    }
+
+    /**
+     * El método obtenerDistancia(Celda, Celda) devuelve la distancia en celdas de origen a destino, sin incluir origen
+     * (e.g de la celda "a8" a la celda "d5" la distancia es 3). Si las coordenadas de alguna de la celdas no están
+     * dentro del tablero, lanza una excepción CoordenadasIncorrectasException.
+     */
+
+    public int obtenerDistancia(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
+
+        return 0;
+    }
 }
