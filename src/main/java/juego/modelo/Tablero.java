@@ -3,33 +3,37 @@ package juego.modelo;
 import juego.util.CoordenadasIncorrectasException;
 import juego.util.Sentido;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static juego.modelo.Color.*;
 
 public class Tablero {
 
     private static final int TAMANHO_POR_DEFECTO = 8;
 
-    private static final Color[][] COLORES_POR_DEFECTO = {
-            {NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON},
-            {ROJO, NARANJA, ROSA, VERDE, AZUL, AMARILLO, MARRON, PURPURA},
-            {VERDE, ROSA, NARANJA, ROJO, PURPURA, MARRON, AMARILLO, AZUL},
-            {ROSA, PURPURA, AZUL, NARANJA, MARRON, VERDE, ROJO, AMARILLO}
-    };
+    private static final Color[][] COLORES_POR_DEFECTO = {{NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON}, {ROJO, NARANJA, ROSA, VERDE, AZUL, AMARILLO, MARRON, PURPURA}, {VERDE, ROSA, NARANJA, ROJO, PURPURA, MARRON, AMARILLO, AZUL}, {ROSA, PURPURA, AZUL, NARANJA, MARRON, VERDE, ROJO, AMARILLO}};
 
-    private Celda[][] matriz;
+    private List<List<Celda>> matriz;
 
     public Tablero() {
         // Lógica de constructor por defecto
 
-        matriz = new Celda[TAMANHO_POR_DEFECTO][TAMANHO_POR_DEFECTO];
 
+        // Creo la estructura de listas
+        matriz = new ArrayList<List<Celda>>();
+
+        for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
+            matriz.add(new ArrayList<Celda>());
+        }
+
+        // Crear celdas
         for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
             for (int j = 0; j < TAMANHO_POR_DEFECTO; j++) {
                 if (i < TAMANHO_POR_DEFECTO / 2) {
-                    matriz[i][j] = new Celda(i, j, COLORES_POR_DEFECTO[i][j]);
+                    matriz.get(i).add(new Celda(i, j, COLORES_POR_DEFECTO[i][j]));
                 } else {
-                    matriz[i][j] = new Celda
-                            (i, j, COLORES_POR_DEFECTO[(TAMANHO_POR_DEFECTO - 1) - i][(TAMANHO_POR_DEFECTO - 1) - j]);
+                    matriz.get(i).add(new Celda(i, j, COLORES_POR_DEFECTO[(TAMANHO_POR_DEFECTO - 1) - i][(TAMANHO_POR_DEFECTO - 1) - j]));
                 }
             }
         }
@@ -54,10 +58,8 @@ public class Tablero {
     public Celda buscarTorre(Turno turno, Color color) {
         for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
             for (int j = 0; j < TAMANHO_POR_DEFECTO; j++) {
-                if (!matriz[i][j].estaVacia() &&
-                        matriz[i][j].obtenerTurnoDeTorre() == turno &&
-                        matriz[i][j].obtenerColorDeTorre() == color) {
-                    return matriz[i][j];
+                if (!matriz.get(i).get(j).estaVacia() && matriz.get(i).get(j).obtenerTurnoDeTorre() == turno && matriz.get(i).get(j).obtenerColorDeTorre() == color) {
+                    return matriz.get(i).get(j);
                 }
             }
         }
@@ -126,7 +128,7 @@ public class Tablero {
         int columna = origen.obtenerColumna() + sentido.obtenerDesplazamientoEnColumnas();
 
         while (destino.obtenerFila() != fila || destino.obtenerColumna() != columna) {
-            if (!matriz[fila][columna].estaVacia()) {
+            if (!matriz.get(fila).get(columna).estaVacia()) {
                 return false;
             }
             fila = fila + sentido.obtenerDesplazamientoEnFilas();
@@ -154,15 +156,13 @@ public class Tablero {
      * El método obtenerCelda, devuelve la referencia a la celda del tablero.
      */
     public Celda obtenerCelda(int fila, int columna) throws CoordenadasIncorrectasException {
-        if (estaFueraDeRango(fila, columna))
-            return null;
-        Celda celda = matriz[fila][columna];
+        if (estaFueraDeRango(fila, columna)) return null;
+        Celda celda = matriz.get(fila).get(columna);
         return celda;
     }
 
     private boolean estaFueraDeRango(int fila, int columna) {
-        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1)
-                || fila < 0 || columna < 0;
+        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1) || fila < 0 || columna < 0;
     }
 
     /**
@@ -238,7 +238,7 @@ public class Tablero {
         if (estaFueraDeRango(fila, columna)) {
             return null;
         }
-        return matriz[fila][columna];
+        return matriz.get(fila).get(columna);
     }
 
     /**
@@ -252,7 +252,7 @@ public class Tablero {
         for (int j = 0; j < TAMANHO_POR_DEFECTO; j++) {
 
             for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
-                Celda celda = matriz[i][j];
+                Celda celda = matriz.get(i).get(j);
                 resultado[pos] = celda;
                 pos++;
             }
@@ -290,7 +290,7 @@ public class Tablero {
     }
 
     public int obtenerNumeroFilas() {
-        return matriz.length;
+        return matriz.size();
     }
 
     /**
@@ -380,8 +380,7 @@ public class Tablero {
     @Override
     public String toString() {
 
-        String resultado = "   a       b       c       d       e       f       g       h  \n" +
-                "                                                              \n";
+        String resultado = "   a       b       c       d       e       f       g       h  \n" + "                                                              \n";
 
         for (int fila = 0; fila < TAMANHO_POR_DEFECTO; fila++) {
 
@@ -390,15 +389,14 @@ public class Tablero {
 
             for (int columna = 0; columna < TAMANHO_POR_DEFECTO; columna++) {
 
-                primeraYTerceraLinea = primeraYTerceraLinea + crearCaracteres1ray3raLinea(matriz[fila][columna]);
-                segundaLinea = segundaLinea + crearCaracteres2daLinea(matriz[fila][columna]);
+                primeraYTerceraLinea = primeraYTerceraLinea + crearCaracteres1ray3raLinea(matriz.get(fila).get(columna));
+                segundaLinea = segundaLinea + crearCaracteres2daLinea(matriz.get(fila).get(columna));
 
             }
             primeraYTerceraLinea = primeraYTerceraLinea + "\n";
             segundaLinea = segundaLinea + "\n";
 
-            String espacioFinalTablero = "                                                              \n" +
-                    "                                                              \n";
+            String espacioFinalTablero = "                                                              \n" + "                                                              \n";
             if (fila == (TAMANHO_POR_DEFECTO - 1)) {
                 espacioFinalTablero = "";
             }
@@ -427,8 +425,7 @@ public class Tablero {
             espacioFinal = "";
         }
         if (!celda.estaVacia()) {
-            return "-" + celda.obtenerTurnoDeTorre().toChar() + celda.obtenerColorDeTorre().toChar() + "-" +
-                    espacioFinal;
+            return "-" + celda.obtenerTurnoDeTorre().toChar() + celda.obtenerColorDeTorre().toChar() + "-" + espacioFinal;
         }
         return "----" + espacioFinal;
     }
@@ -440,14 +437,26 @@ public class Tablero {
      * indicado (primera fila para turno blanco y última fila para turno negro).
      */
     public Celda buscarCeldaOrigen(Turno turno, Color color) {
-
+        int iFilaOrigen = 0;
+        if (turno == Turno.NEGRO) {
+            iFilaOrigen = 7;
+        }
+        for (int j = 0; j < TAMANHO_POR_DEFECTO; j++) {
+            Celda celdaOrigen = matriz.get(iFilaOrigen).get(j);
+            if (celdaOrigen.obtenerTurnoDeTorre() == turno && celdaOrigen.obtenerColorDeTorre() == color) {
+                return celdaOrigen;
+            }
+        }
         return null;
     }
+
+
     /**
-    *El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
+     * El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
      * contrario
-    */
+     */
     public boolean estaEntablero(int fila, int columna) {
+
 
         return false;
     }
