@@ -156,14 +156,14 @@ public class Tablero {
      * El método obtenerCelda, devuelve la referencia a la celda del tablero.
      */
     public Celda obtenerCelda(int fila, int columna) throws CoordenadasIncorrectasException {
-        if (estaFueraDeRango(fila, columna)) return null;
+        if (estaEnTablero(fila, columna)) return null;
         Celda celda = matriz.get(fila).get(columna);
         return celda;
     }
-
-    private boolean estaFueraDeRango(int fila, int columna) {
-        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1) || fila < 0 || columna < 0;
-    }
+//      Ya no lo necesito porque cree el metodo esta en tablero
+//    private boolean estaEntablero(int fila, int columna) {
+//        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1) || fila < 0 || columna < 0;
+//    }
 
     /**
      * El método obtenerCeldaDestinoEnJugada, devuelve la referencia a la celda destino en la jugada
@@ -235,7 +235,7 @@ public class Tablero {
         char columnaChar = caracteres[0];
         int fila = 56 - filaChar;
         int columna = columnaChar - 97;
-        if (estaFueraDeRango(fila, columna)) {
+        if (estaEnTablero(fila, columna)) {
             return null;
         }
         return matriz.get(fila).get(columna);
@@ -266,7 +266,7 @@ public class Tablero {
      * al tablero se retorna "--".
      */
     public String obtenerCoordenadasEnNotacionAlgebraica(Celda celda) throws CoordenadasIncorrectasException {
-        if (estaFueraDeRango(celda.obtenerFila(), celda.obtenerColumna())) {
+        if (estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
             return "--";
         }
         char fila = (char) (56 - celda.obtenerFila());
@@ -429,8 +429,8 @@ public class Tablero {
         }
         return "----" + espacioFinal;
     }
-
-    //TODO: AQUI COMIENZA EL CODIGO NUEVO
+    
+    // TODO: AQUI COMIENZA EL CODIGO NUEVO
 
     /**
      * El método buscarCeldaOrigen(Turno, Color) devuelve la celda de dicho color, en la fila de origen inicial del turno
@@ -450,15 +450,12 @@ public class Tablero {
         return null;
     }
 
-
     /**
      * El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
      * contrario
      */
-    public boolean estaEntablero(int fila, int columna) {
-
-
-        return false;
+    public boolean estaEnTablero(int fila, int columna) {
+        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1) || fila < 0 || columna < 0;
     }
 
     /**
