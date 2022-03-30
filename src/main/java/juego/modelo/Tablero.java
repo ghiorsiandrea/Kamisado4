@@ -14,13 +14,14 @@ public class Tablero {
 
     private static final Color[][] COLORES_POR_DEFECTO = {{NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON}, {ROJO, NARANJA, ROSA, VERDE, AZUL, AMARILLO, MARRON, PURPURA}, {VERDE, ROSA, NARANJA, ROJO, PURPURA, MARRON, AMARILLO, AZUL}, {ROSA, PURPURA, AZUL, NARANJA, MARRON, VERDE, ROJO, AMARILLO}};
 
-    private List<List<Celda>> matriz;
+    private final List<List<Celda>> matriz;
 
     public Tablero() {
         // Lógica de constructor por defecto
 
 
-        // Creo la estructura de listas
+        // Creo la estructura de listas, el tipo de dato dentro del arrayList es inferido o java se da cuenta que tipo
+        // tiene por el tipo de la variable en la que estoy guardando la nueva instancia "new" (inferencia de tipos)
         matriz = new ArrayList<List<Celda>>();
 
         for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
@@ -72,6 +73,10 @@ public class Tablero {
     public void colocar(Torre torre, Celda celda) throws CoordenadasIncorrectasException {
         torre.establecerCelda(celda);
         celda.establecerTorre(torre);
+        if (!estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
+            throw new CoordenadasIncorrectasException("La celda con fila [" + celda.obtenerFila() + "] y columna [" +
+                    celda.obtenerColumna() + "] no pertenece al Tablero.");
+        }
     }
 
     /**
@@ -464,8 +469,26 @@ public class Tablero {
      */
     public boolean hayTorreColorContrario(Turno turno) {
 
+        if (turno == null) {
+            return false;
+        }
+        int ultimaFila = 0;
+        if (turno == Turno.BLANCO) {
+            ultimaFila = this.obtenerNumeroFilas() - 1;
+        }
+
+        for (int i = 0; i < this.obtenerNumeroColumnas(); i++) {
+            try {
+                if (this.obtenerCelda(ultimaFila, i).obtenerTurnoDeTorre() == turno) {
+                    return true;
+                }
+            } catch (CoordenadasIncorrectasException e) {
+                e.printStackTrace();
+            }
+        }
         return false;
     }
+
 
     /**
      * El método obtenerDistancia(Celda, Celda) devuelve la distancia en celdas de origen a destino, sin incluir origen

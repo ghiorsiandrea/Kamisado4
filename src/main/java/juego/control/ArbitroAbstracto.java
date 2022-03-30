@@ -50,22 +50,8 @@ public abstract class ArbitroAbstracto implements Arbitro {
      */
     public boolean estaAlcanzadaUltimaFilaPor(Turno turno) {
 
-        if (turno == null) {
-            return false;
-        }
-        int ultimaFila = 0;
-        if (turno == Turno.BLANCO) {
-            ultimaFila = tablero.obtenerNumeroFilas() - 1;
-        }
-
-        for (int i = 0; i < tablero.obtenerNumeroColumnas(); i++) {
-            try {
-                if (tablero.obtenerCelda(ultimaFila, i).obtenerTurnoDeTorre() == turno) {
-                    return true;
-                }
-            } catch (CoordenadasIncorrectasException e) {
-                e.printStackTrace();
-            }
+        if (tablero.hayTorreColorContrario(turno)) {
+            return true;
         }
         return false;
     }
@@ -77,10 +63,6 @@ public abstract class ArbitroAbstracto implements Arbitro {
             return Turno.BLANCO;
         }
     }
-
-//todo> aca en realidad quiero que los sentidos sean para cada tipo de partida, peero no se como hacerlo llamar al
-// metodo de un hijo en la superclase *porque si lo pongo en estandar y simple no se como llamarlo en abstracto, y
-// si lo necesito en abstracto, deberia crear una logica unificada?*
 
     protected Sentido[] sentidosDeTurno(Turno turno) {
 
