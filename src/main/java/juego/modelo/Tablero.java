@@ -74,8 +74,7 @@ public class Tablero {
         torre.establecerCelda(celda);
         celda.establecerTorre(torre);
         if (!estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
-            throw new CoordenadasIncorrectasException("La celda con fila [" + celda.obtenerFila() + "] y columna [" +
-                    celda.obtenerColumna() + "] no pertenece al Tablero.");
+            throw new CoordenadasIncorrectasException("La celda con fila [" + celda.obtenerFila() + "] y columna [" + celda.obtenerColumna() + "] no pertenece al Tablero.");
         }
     }
 
@@ -434,7 +433,7 @@ public class Tablero {
         }
         return "----" + espacioFinal;
     }
-    
+
     // TODO: AQUI COMIENZA EL CODIGO NUEVO
 
     /**
@@ -495,9 +494,18 @@ public class Tablero {
      * (e.g de la celda "a8" a la celda "d5" la distancia es 3). Si las coordenadas de alguna de la celdas no están
      * dentro del tablero, lanza una excepción CoordenadasIncorrectasException.
      */
-
     public int obtenerDistancia(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
-        return 0;
+        if (!estaEnTablero(origen.obtenerFila(), origen.obtenerColumna()) ||
+                !estaEnTablero(destino.obtenerFila(), destino.obtenerColumna())) {
+            throw new CoordenadasIncorrectasException(
+                    "Una o todas las coordenadas indicadas no pertenecen al tablero");
+        }
+
+        int filaOrigen = origen.obtenerFila();
+        int filaDestino = destino.obtenerFila();
+
+        return filaOrigen - filaDestino;
     }
+
 }
