@@ -155,6 +155,19 @@ public class Tablero {
      */
     public void moverTorre(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
+        int fOrigen = origen.obtenerFila();
+        int colOrigen = origen.obtenerColumna();
+        int fDestino = destino.obtenerFila();
+        int colDestino = destino.obtenerColumna();
+
+        if (!estaEnTablero(fOrigen, colOrigen)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fOrigen, colOrigen));
+        }
+
+        if (!estaEnTablero(fDestino, colDestino)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fDestino, colDestino));
+        }
+
         if (origen.estaVacia() || !destino.estaVacia()) {
             return;
         }
@@ -406,31 +419,37 @@ public class Tablero {
     @Override
     public String toString() {
 
-        String resultado = "   a       b       c       d       e       f       g       h  \n" + "                                                              \n";
+        StringBuilder resultado = new StringBuilder("""
+                   a       b       c       d       e       f       g       h \s
+                                                                             \s
+                """);
 
         for (int fila = 0; fila < TAMANHO_POR_DEFECTO; fila++) {
 
-            String primeraYTerceraLinea = "  ";
-            String segundaLinea = "" + ((char) (56 - fila)) + " ";
+            StringBuilder primeraYTerceraLinea = new StringBuilder("  ");
+            StringBuilder segundaLinea = new StringBuilder("" + ((char) (56 - fila)) + " ");
 
             for (int columna = 0; columna < TAMANHO_POR_DEFECTO; columna++) {
 
-                primeraYTerceraLinea = primeraYTerceraLinea + crearCaracteres1ray3raLinea(matriz.get(fila).get(columna));
-                segundaLinea = segundaLinea + crearCaracteres2daLinea(matriz.get(fila).get(columna));
+                primeraYTerceraLinea.append(crearCaracteres1ray3raLinea(matriz.get(fila).get(columna)));
+                segundaLinea.append(crearCaracteres2daLinea(matriz.get(fila).get(columna)));
 
             }
-            primeraYTerceraLinea = primeraYTerceraLinea + "\n";
-            segundaLinea = segundaLinea + "\n";
+            primeraYTerceraLinea.append("\n");
+            segundaLinea.append("\n");
 
-            String espacioFinalTablero = "                                                              \n" + "                                                              \n";
+            String espacioFinalTablero = """
+                                                                                 \s
+                                                                                 \s
+                    """;
             if (fila == (TAMANHO_POR_DEFECTO - 1)) {
                 espacioFinalTablero = "";
             }
 
-            resultado = resultado + primeraYTerceraLinea + segundaLinea + primeraYTerceraLinea + espacioFinalTablero;
+            resultado.append(primeraYTerceraLinea).append(segundaLinea).append(primeraYTerceraLinea).append(espacioFinalTablero);
 
         }
-        return resultado;
+        return resultado.toString();
     }
 
     private String crearCaracteres1ray3raLinea(Celda celda) {
