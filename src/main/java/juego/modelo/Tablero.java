@@ -13,6 +13,9 @@ public class Tablero {
 
     private static final String MESSAGE_ERROR_FORMATO_TEXTO = "El formato del texto es incorrecto";
 
+    private static final String MESSAGE_ERROR_COORDENADAS_ALGEBRAICAS = "Las coordenadas algebraicas indicadas no son " +
+            "correctas";
+
     private static final int TAMANHO_POR_DEFECTO = 8;
 
     private static final Color[][] COLORES_POR_DEFECTO = {{NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON},
@@ -227,7 +230,7 @@ public class Tablero {
     public Celda obtenerCeldaOrigenEnJugada(String textoJugada) throws CoordenadasIncorrectasException {
         char[] caracteres = textoJugada.toLowerCase().toCharArray();
         if (caracteres.length != 4) {
-            return null;
+            throw new CoordenadasIncorrectasException(MESSAGE_ERROR_COORDENADAS_ALGEBRAICAS);
         }
 
         char filaChar = caracteres[1];
