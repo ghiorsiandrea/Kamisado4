@@ -9,40 +9,69 @@ public class ArbitroSimple extends ArbitroAbstracto {
         super(tablero);
     }
 
+    /**
+     * Retorna la celda que contiene la torre del turno y color indicado.
+     *
+     * @param turno turno
+     * @param color color
+     * @return celda
+     */
     @Override
     public Celda buscarCeldaConTorreDeColor(Turno turno, Color color) {
+
         return null;
     }
 
+    /**
+     * Consulta el ganador de la partida.
+     *
+     * @return ganador actual o null si no hay ganador
+     */
     @Override
     public Turno consultarGanadorPartida() {
-        return null;
+        return consultarGanador();
     }
 
+    /**
+     * Consulta el ganador de la ronda actual.
+     *
+     * @return ganador actual o null si no hay ganador
+     */
     @Override
     public Turno consultarGanadorRonda() {
-        return null;
+        return consultarGanadorPartida();
     }
 
     @Override
     public void empujarSumo(Celda origen) throws CoordenadasIncorrectasException {
-
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * Comprueba si está acabada la partida.
+     *
+     * @return true si está acabada la partida, false en caso contrario
+     */
     @Override
     public boolean estaAcabadaPartida() {
-        return false;
+        return consultarGanador() != null;
     }
 
+    /**
+     * Comprueba si está acabada la ronda.
+     *
+     * @return true si está acabada la ronda, false en caso contrario
+     */
     @Override
     public boolean estaAcabadaRonda() {
-        return false;
+        return estaAcabadaPartida()
+                ;
     }
 
 
     @Override
     public Turno obtenerTurno() {
-        return null;
+        return turnoActual;
     }
 
     @Override
@@ -72,7 +101,7 @@ public class ArbitroSimple extends ArbitroAbstracto {
 
     @Override
     public void reiniciarRonda() {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -189,6 +218,7 @@ public class ArbitroSimple extends ArbitroAbstracto {
     }
 
     //TODO: TRY CATCH
+
     /**
      *  El método estaBloqueadoTurnoActual devuelve true si el jugador con turno actual no puede mover la torre que
      * corresponde, o false en caso contrario.
@@ -261,6 +291,7 @@ public class ArbitroSimple extends ArbitroAbstracto {
             return true;
         } else return false;
     }
+
     protected Sentido[] sentidosDeTurno(Turno turno) {
 
         if (turno == Turno.BLANCO) {

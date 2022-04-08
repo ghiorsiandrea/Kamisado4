@@ -409,12 +409,42 @@ public class Tablero {
 
     }
 
+    private String crearCaracteres1ray3raLinea(Celda celda) {
+
+        String espacioFinal = "    ";
+        if (celda.obtenerColumna() == (TAMANHO_POR_DEFECTO - 1)) {
+            espacioFinal = "";
+        }
+        char caracterColorCelda = celda.obtenerColor().toChar();
+        return caracterColorCelda + ".." + caracterColorCelda + espacioFinal;
+
+    }
+
+    private String crearCaracteres2daLinea(Celda celda) {
+
+        String espacioFinal = "    ";
+        if (celda.obtenerColumna() == (TAMANHO_POR_DEFECTO - 1)) {
+            espacioFinal = "";
+        }
+        if (!celda.estaVacia()) {
+            if (celda.obtenerTorre() instanceof TorreSimple) {
+                return "-" + celda.obtenerTurnoDeTorre().toChar() + celda.obtenerColorDeTorre().toChar() + "-" + espacioFinal;
+            } else {
+                return "-" + celda.obtenerTurnoDeTorre().toChar() + celda.obtenerColorDeTorre().toChar() +
+                        celda.obtenerTorre().obtenerNumeroDientes() + espacioFinal;
+            }
+        }
+        return "----" + espacioFinal;
+
+    }
+
     /**
      * El método toString devuelve el estado actual del tablero en formato cadena de texto tal y como se mostraría a un
      * jugador en plena partida. Ej: se muestra el tablero tras realizar algún movimiento de torres.
      * En cada celda se indica en sus cuatros esquinas la letra con su color y en el centro, el turno y color de la
      * torre (e.g. "BN" para turno blanco con torre verde, "NM" para turno negro con torre naranja, etc.) o bien un par
      * de guiones si está vacía.
+     * Si es una torre sumo uno, se añade dicho número a la derecha (eg. "BN1", "NM1", etc.).
      */
     @Override
     public String toString() {
@@ -450,29 +480,6 @@ public class Tablero {
 
         }
         return resultado.toString();
-    }
-
-    private String crearCaracteres1ray3raLinea(Celda celda) {
-
-        String espacioFinal = "    ";
-        if (celda.obtenerColumna() == (TAMANHO_POR_DEFECTO - 1)) {
-            espacioFinal = "";
-        }
-        char caracterColorCelda = celda.obtenerColor().toChar();
-        return caracterColorCelda + ".." + caracterColorCelda + espacioFinal;
-
-    }
-
-    private String crearCaracteres2daLinea(Celda celda) {
-
-        String espacioFinal = "    ";
-        if (celda.obtenerColumna() == (TAMANHO_POR_DEFECTO - 1)) {
-            espacioFinal = "";
-        }
-        if (!celda.estaVacia()) {
-            return "-" + celda.obtenerTurnoDeTorre().toChar() + celda.obtenerColorDeTorre().toChar() + "-" + espacioFinal;
-        }
-        return "----" + espacioFinal;
     }
 
     // TODO: AQUI COMIENZA EL CODIGO NUEVO
