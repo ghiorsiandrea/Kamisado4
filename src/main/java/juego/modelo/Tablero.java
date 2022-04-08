@@ -65,7 +65,8 @@ public class Tablero {
     public Celda buscarTorre(Turno turno, Color color) {
         for (int i = 0; i < TAMANHO_POR_DEFECTO; i++) {
             for (int j = 0; j < TAMANHO_POR_DEFECTO; j++) {
-                if (!matriz.get(i).get(j).estaVacia() && matriz.get(i).get(j).obtenerTurnoDeTorre() == turno && matriz.get(i).get(j).obtenerColorDeTorre() == color) {
+                if (!matriz.get(i).get(j).estaVacia() && matriz.get(i).get(j).obtenerTurnoDeTorre() ==
+                        turno && matriz.get(i).get(j).obtenerColorDeTorre() == color) {
                     return matriz.get(i).get(j);
                 }
             }
@@ -185,8 +186,7 @@ public class Tablero {
             throw new CoordenadasIncorrectasException(
                     String.format(Message.ERROR_CELDA_FUERA_TABLERO, fila, columna));
         }
-        Celda celda = matriz.get(fila).get(columna);
-        return celda;
+        return matriz.get(fila).get(columna);
     }
 //      Ya no lo necesito porque cree el metodo esta en tablero
 //    private boolean estaEntablero(int fila, int columna) {
@@ -301,8 +301,7 @@ public class Tablero {
         }
         char fila = (char) (56 - celda.obtenerFila());
         char columna = (char) (celda.obtenerColumna() + 97);
-        String resultado = "" + columna + fila;
-        return resultado;
+        return "" + columna + fila;
     }
 
     /**
@@ -508,7 +507,7 @@ public class Tablero {
      * contrario
      */
     public boolean estaEnTablero(int fila, int columna) {
-        return fila < TAMANHO_POR_DEFECTO && columna < TAMANHO_POR_DEFECTO && fila > 0 && columna > 0;
+        return fila < TAMANHO_POR_DEFECTO && columna < TAMANHO_POR_DEFECTO && fila >= 0 && columna >= 0;
     }
 
     /**

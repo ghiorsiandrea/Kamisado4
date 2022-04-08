@@ -10,19 +10,6 @@ public class ArbitroSimple extends ArbitroAbstracto {
     }
 
     /**
-     * Retorna la celda que contiene la torre del turno y color indicado.
-     *
-     * @param turno turno
-     * @param color color
-     * @return celda
-     */
-    @Override
-    public Celda buscarCeldaConTorreDeColor(Turno turno, Color color) {
-
-        return null;
-    }
-
-    /**
      * Consulta el ganador de la partida.
      *
      * @return ganador actual o null si no hay ganador
@@ -64,29 +51,12 @@ public class ArbitroSimple extends ArbitroAbstracto {
      */
     @Override
     public boolean estaAcabadaRonda() {
-        return estaAcabadaPartida()
-                ;
-    }
-
-
-    @Override
-    public Turno obtenerTurno() {
-        return turnoActual;
-    }
-
-    @Override
-    public int obtenerNumeroJugada() {
-        return 0;
-    }
-
-    @Override
-    public Color obtenerUltimoMovimiento(Turno turno) {
-        return null;
+        return estaAcabadaPartida();
     }
 
     @Override
     public boolean esEmpujonSumoLegal(Celda origen) throws CoordenadasIncorrectasException {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -103,13 +73,6 @@ public class ArbitroSimple extends ArbitroAbstracto {
     public void reiniciarRonda() {
         throw new UnsupportedOperationException();
     }
-
-    @Override
-    public boolean estaAlcanzadaUltimaFilaPor(Turno turno) {
-        return false;
-    }
-
-    //TODO: ACA COMIENZO A DISCRIMINAR MÈTODOS
 
     /**
      *  El método colocarTorres() inicializa el tablero asignado en el constructor, con todas las torres
@@ -148,8 +111,7 @@ public class ArbitroSimple extends ArbitroAbstracto {
      * más simples de probar, sin tener que realizar tantos movimientos.
      */
     @Override
-    public void colocarTorres(Torre[] torres, String[] coordenadas, Color ultimoColorTurnoNegro,
-                              Color ultimoColorTurnoBlanco, Turno turnoActual) throws CoordenadasIncorrectasException {
+    public void colocarTorres(Torre[] torres, String[] coordenadas, Color ultimoColorTurnoNegro, Color ultimoColorTurnoBlanco, Turno turnoActual) throws CoordenadasIncorrectasException {
 
         if (torres.length != coordenadas.length || torres.length == 0) {
             return;
@@ -232,10 +194,8 @@ public class ArbitroSimple extends ArbitroAbstracto {
 
         for (Sentido sentido : sentidosDeTurno(turnoActual)) {
 
-            int filaPosibleMovimiento = celdaTurnoActualUtimoMovimiento.obtenerFila() +
-                    sentido.obtenerDesplazamientoEnFilas();
-            int columnaPosibleMovimiento = celdaTurnoActualUtimoMovimiento.obtenerColumna() +
-                    sentido.obtenerDesplazamientoEnColumnas();
+            int filaPosibleMovimiento = celdaTurnoActualUtimoMovimiento.obtenerFila() + sentido.obtenerDesplazamientoEnFilas();
+            int columnaPosibleMovimiento = celdaTurnoActualUtimoMovimiento.obtenerColumna() + sentido.obtenerDesplazamientoEnColumnas();
             Celda celdaPosibleMovimiento = null;
             try {
                 celdaPosibleMovimiento = tablero.obtenerCelda(filaPosibleMovimiento, columnaPosibleMovimiento);
@@ -273,23 +233,6 @@ public class ArbitroSimple extends ArbitroAbstracto {
         colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
         colorCeldaUltimoMovimiento = destino.obtenerColor();
         ultimoMovimientoEsCero = false;
-    }
-
-    /**
-     *  El método hayBloqueoMutuo devuelve true si ninguno de los jugadores puede mover la torre
-     * que corresponde, false en caso contrario.
-     */
-    @Override
-    public boolean hayBloqueoMutuo() {
-
-//        no puedo usar este metodo pues consultar ganador usa al metodo hay bloqueo mutuo
-//        if (consultarGanador() != null) {
-//            return false;
-//        }
-
-        if (ultimoMovimientoEsCero && estaBloqueadoTurnoActual()) {
-            return true;
-        } else return false;
     }
 
     protected Sentido[] sentidosDeTurno(Turno turno) {

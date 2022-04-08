@@ -50,10 +50,14 @@ public abstract class ArbitroAbstracto implements Arbitro {
      */
     public boolean estaAlcanzadaUltimaFilaPor(Turno turno) {
 
-        if (tablero.hayTorreColorContrario(turno)) {
-            return true;
-        }
-        return false;
+//       forma larga
+//        if (tablero.hayTorreColorContrario(turno)) {
+//            return true;
+//        }
+//        return false;
+
+
+        return tablero.hayTorreColorContrario(turno);
     }
 
     protected Turno obtenerTurnoSiguiente() {
@@ -118,7 +122,6 @@ public abstract class ArbitroAbstracto implements Arbitro {
         return true;
     }
 
-
     /**
      *  El método obtenerNumeroJugada consulta el número de jugadas finalizadas en la partida. Todos
      * los movimientos cuentan, tanto de torre a otra celda, y de “distancia cero”.
@@ -146,5 +149,32 @@ public abstract class ArbitroAbstracto implements Arbitro {
 
     }
 
+    /**
+     * Retorna la celda que contiene la torre del turno y color indicado.
+     *
+     * @param turno turno
+     * @param color color
+     * @return celda
+     */
+    @Override
+    public Celda buscarCeldaConTorreDeColor(Turno turno, Color color) {
+        return tablero.buscarTorre(turno, color);
+    }
+
+    @Override
+    public boolean hayBloqueoMutuo() {
+
+//        no puedo usar este metodo pues consultar ganador usa al metodo hay bloqueo mutuo
+//        if (consultarGanador() != null) {
+//            return false;
+//        }
+
+// forma larga
+//        if (ultimoMovimientoEsCero && estaBloqueadoTurnoActual()) {
+//            return true;
+//        } else return false;
+
+        return ultimoMovimientoEsCero && estaBloqueadoTurnoActual();
+    }
 
 }

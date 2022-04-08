@@ -10,11 +10,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     }
 
     @Override
-    public Celda buscarCeldaConTorreDeColor(Turno turno, Color color) {
-        return null;
-    }
-
-    @Override
     public Turno consultarGanadorPartida() {
         return null;
     }
@@ -40,21 +35,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     }
 
     @Override
-    public Turno obtenerTurno() {
-        return null;
-    }
-
-    @Override
-    public int obtenerNumeroJugada() {
-        return 0;
-    }
-
-    @Override
-    public Color obtenerUltimoMovimiento(Turno turno) {
-        return null;
-    }
-
-    @Override
     public boolean esEmpujonSumoLegal(Celda origen) throws CoordenadasIncorrectasException {
         return false;
     }
@@ -74,10 +54,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
     }
 
-    @Override
-    public boolean estaAlcanzadaUltimaFilaPor(Turno turno) {
-        return false;
-    }
 
     //TODO: ACA COMIENZO A DISCRIMINAR MÈTODOS
 
@@ -168,7 +144,7 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     @Override
     public boolean esMovimientoLegalConTurnoActual(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
-        if (origen.estaVacia() || !destino.estaVacia())  {
+        if (origen.estaVacia() || !destino.estaVacia()) {
             return false;
         }
         if (!tablero.estanVaciasCeldasEntre(origen, destino)) {
@@ -188,6 +164,7 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     }
 
     //TODO: TRY CATCH
+
     /**
      *  El método estaBloqueadoTurnoActual devuelve true si el jugador con turno actual no puede mover la torre que
      * corresponde, o false en caso contrario.
@@ -244,22 +221,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
         ultimoMovimientoEsCero = false;
     }
 
-    /**
-     *  El método hayBloqueoMutuo devuelve true si ninguno de los jugadores puede mover la torre
-     * que corresponde, false en caso contrario.
-     */
-    @Override
-    public boolean hayBloqueoMutuo() {
-
-//        no puedo usar este metodo pues consultar ganador usa al metodo hay bloqueo mutuo
-//        if (consultarGanador() != null) {
-//            return false;
-//        }
-
-        if (ultimoMovimientoEsCero && estaBloqueadoTurnoActual()) {
-            return true;
-        } else return false;
-    }
     protected Sentido[] sentidosDeTurno(Turno turno) {
 
         if (turno == Turno.BLANCO) {
