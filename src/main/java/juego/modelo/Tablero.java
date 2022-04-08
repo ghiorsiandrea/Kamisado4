@@ -1,6 +1,7 @@
 package juego.modelo;
 
 import juego.util.CoordenadasIncorrectasException;
+import juego.util.Message;
 import juego.util.Sentido;
 
 import java.util.ArrayList;
@@ -10,11 +11,16 @@ import static juego.modelo.Color.*;
 
 public class Tablero {
 
+    private static final String MESSAGE_ERROR_FORMATO_TEXTO = "El formato del texto es incorrecto";
+
     private static final int TAMANHO_POR_DEFECTO = 8;
 
-    private static final Color[][] COLORES_POR_DEFECTO = {{NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON}, {ROJO, NARANJA, ROSA, VERDE, AZUL, AMARILLO, MARRON, PURPURA}, {VERDE, ROSA, NARANJA, ROJO, PURPURA, MARRON, AMARILLO, AZUL}, {ROSA, PURPURA, AZUL, NARANJA, MARRON, VERDE, ROJO, AMARILLO}};
+    private static final Color[][] COLORES_POR_DEFECTO = {{NARANJA, AZUL, PURPURA, ROSA, AMARILLO, ROJO, VERDE, MARRON},
+            {ROJO, NARANJA, ROSA, VERDE, AZUL, AMARILLO, MARRON, PURPURA}, {VERDE, ROSA, NARANJA, ROJO, PURPURA, MARRON,
+            AMARILLO, AZUL}, {ROSA, PURPURA, AZUL, NARANJA, MARRON, VERDE, ROJO, AMARILLO}};
 
     private final List<List<Celda>> matriz;
+
 
     public Tablero() {
         // Lógica de constructor por defecto
@@ -74,7 +80,8 @@ public class Tablero {
         torre.establecerCelda(celda);
         celda.establecerTorre(torre);
         if (!estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
-            throw new CoordenadasIncorrectasException("La celda con fila [" + celda.obtenerFila() + "] y columna [" + celda.obtenerColumna() + "] no pertenece al Tablero.");
+            throw new CoordenadasIncorrectasException(
+                    String.format(Message.ERROR_CELDA_FUERA_TABLERO, celda.obtenerFila(), celda.obtenerColumna()));
         }
     }
 
@@ -163,7 +170,7 @@ public class Tablero {
     public Celda obtenerCelda(int fila, int columna) throws CoordenadasIncorrectasException {
         if (!estaEnTablero(fila, columna)) {
             throw new CoordenadasIncorrectasException(
-                    "La fila: " + fila + "y columna: " + columna + "indicadas no pertenecen al tablero.");
+                    String.format(Message.ERROR_CELDA_FUERA_TABLERO, fila, columna));
         }
         Celda celda = matriz.get(fila).get(columna);
         return celda;
@@ -235,9 +242,10 @@ public class Tablero {
     //mapaFilas.put('2', 6);
     //int fila = mapaFilas.get(filaChar);
     public Celda obtenerCeldaParaNotacionAlgebraica(String texto) throws CoordenadasIncorrectasException {
+
         char[] caracteres = texto.toLowerCase().toCharArray();
         if (caracteres.length != 2) {
-            throw new CoordenadasIncorrectasException("El formato del texto es incorrecto");
+            throw new CoordenadasIncorrectasException(MESSAGE_ERROR_FORMATO_TEXTO);
         }
 
         char filaChar = caracteres[1];
@@ -245,7 +253,7 @@ public class Tablero {
         int fila = 56 - filaChar;
         int columna = columnaChar - 97;
         if (!estaEnTablero(fila, columna)) {
-            throw new CoordenadasIncorrectasException("Las coordenadas no están dentro del tablero");
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fila, columna));
         }
         return matriz.get(fila).get(columna);
     }
@@ -341,12 +349,21 @@ public class Tablero {
      */
     public Sentido obtenerSentido(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
-        Sentido x = null;
-
         int fOrigen = origen.obtenerFila();
         int colOrigen = origen.obtenerColumna();
         int fDestino = destino.obtenerFila();
         int colDestino = destino.obtenerColumna();
+
+        if (!estaEnTablero(fOrigen, colOrigen)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fOrigen, colOrigen));
+        }
+
+        if (!estaEnTablero(fDestino, colDestino)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fDestino, colDestino));
+        }
+
+        Sentido x = null;
+
 
         int difFilas = Math.abs(fOrigen - fDestino);
         int difColumnas = Math.abs(colOrigen - colDestino);
@@ -459,12 +476,13 @@ public class Tablero {
         return null;
     }
 // TODO: HACER UN STRING CON EL MENSAJE DE ERROR
+
     /**
      * El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
      * contrario
      */
     public boolean estaEnTablero(int fila, int columna) {
-        return fila < TAMANHO_POR_DEFECTO  && columna < TAMANHO_POR_DEFECTO  && fila > 0 && columna > 0;
+        return fila < TAMANHO_POR_DEFECTO && columna < TAMANHO_POR_DEFECTO && fila > 0 && columna > 0;
     }
 
     /**
@@ -501,16 +519,20 @@ public class Tablero {
      */
     public int obtenerDistancia(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
 
-        if (!estaEnTablero(origen.obtenerFila(), origen.obtenerColumna()) ||
-                !estaEnTablero(destino.obtenerFila(), destino.obtenerColumna())) {
-            throw new CoordenadasIncorrectasException(
-                    "Una o todas las coordenadas indicadas no pertenecen al tablero");
+        int fOrigen = origen.obtenerFila();
+        int colOrigen = origen.obtenerColumna();
+        int fDestino = destino.obtenerFila();
+        int colDestino = destino.obtenerColumna();
+
+        if (!estaEnTablero(fOrigen, colOrigen)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fOrigen, colOrigen));
         }
 
-        int filaOrigen = origen.obtenerFila();
-        int filaDestino = destino.obtenerFila();
+        if (!estaEnTablero(fDestino, colDestino)) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO, fDestino, colDestino));
+        }
 
-        return filaOrigen - filaDestino;
+        return fOrigen - fDestino;
     }
 
 }

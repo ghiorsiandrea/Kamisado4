@@ -13,27 +13,27 @@ public class TorreSumoUno extends TorreAbstracta {
 
     @Override
     public int obtenerNumeroDientes() {
-        return 0;
-    }
-
-    @Override
-    public int obtenerNumeroPuntos() {
         return 1;
     }
 
     @Override
+    public int obtenerNumeroPuntos() {
+        return 3;
+    }
+
+    @Override
     public int obtenerMaximoAlcance() {
-        return Integer.MAX_VALUE;
+        return 5;
     }
 
     @Override
     public int obtenerNumeroMaximoTorresAEmpujar() {
-        return 0;
+        return 1;
     }
 
     public String toString() {
         String turnoTxt = String.valueOf(obtenerTurno().toChar());
         String colorTxt = String.valueOf(obtenerColor().toChar());
-        return turnoTxt  + colorTxt;
+        return turnoTxt  + colorTxt + obtenerNumeroDientes();
     }
 }

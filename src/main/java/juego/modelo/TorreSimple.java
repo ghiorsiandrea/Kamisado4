@@ -18,16 +18,22 @@ public class TorreSimple extends TorreAbstracta{
 
     @Override
     public int obtenerNumeroPuntos() {
-        return 0;
+        return 1;
     }
 
     @Override
     public int obtenerMaximoAlcance() {
-        return 0;
+        return Integer.MAX_VALUE;
     }
 
     @Override
     public int obtenerNumeroMaximoTorresAEmpujar() {
         return 0;
+    }
+
+    public String toString() {
+        String turnoTxt = String.valueOf(obtenerTurno().toChar());
+        String colorTxt = String.valueOf(obtenerColor().toChar());
+        return turnoTxt  + colorTxt;
     }
 }
