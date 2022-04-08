@@ -29,21 +29,29 @@ public abstract class TorreAbstracta implements Torre{
 
     @Override
     public Turno obtenerTurno() {
-        return null;
+        return turno;
     }
 
     @Override
     public Color obtenerColor() {
-        return null;
+        return color;
     }
 
     @Override
     public Celda obtenerCelda() {
-        return null;
+        return celda;
     }
 
     @Override
     public void establecerCelda(Celda celda) {
+        this.celda = celda;
 
+    }
+
+    @Override
+    public String toString() {
+        String turnoTxt = String.valueOf(obtenerTurno().toChar());
+        String colorTxt = String.valueOf(obtenerColor().toChar());
+        return turnoTxt  + colorTxt;
     }
 }

@@ -158,9 +158,13 @@ public class Tablero {
 
     /**
      * El método obtenerCelda, devuelve la referencia a la celda del tablero.
+     * Si las coordenadas de la celda no están dentro del tablero lanza una excepción CoordenadasIncorrectasException
      */
     public Celda obtenerCelda(int fila, int columna) throws CoordenadasIncorrectasException {
-        if (estaEnTablero(fila, columna)) return null;
+        if (!estaEnTablero(fila, columna)) {
+            throw new CoordenadasIncorrectasException(
+                    "La fila: " + fila + "y columna: " + columna + "indicadas no pertenecen al tablero.");
+        }
         Celda celda = matriz.get(fila).get(columna);
         return celda;
     }
@@ -213,9 +217,10 @@ public class Tablero {
     }
 
     /**
-     * El método obtenerCeldaParaNotacionAlgebraica, devuelve la referencia a la celda en notación
-     * algebraica (e.g. con "a1" retorna la celda [7][0]). Si el formato de texto es incorrecto retorna
-     * null.
+     * El método obtenerCeldaParaNotacionAlgebraica, devuelve la referencia a la celda en notación algebraica
+     * (e.g. con "a1" retorna la celda [7][0]).
+     * Si el formato de texto es incorrecto o las coordenadas de las celdas no están dentro del tablero lanza una
+     * excepción CoordenadasIncorrectasException.
      */
 
     //ejemplo SWITCH
@@ -232,15 +237,15 @@ public class Tablero {
     public Celda obtenerCeldaParaNotacionAlgebraica(String texto) throws CoordenadasIncorrectasException {
         char[] caracteres = texto.toLowerCase().toCharArray();
         if (caracteres.length != 2) {
-            return null;
+            throw new CoordenadasIncorrectasException("El formato del texto es incorrecto");
         }
 
         char filaChar = caracteres[1];
         char columnaChar = caracteres[0];
         int fila = 56 - filaChar;
         int columna = columnaChar - 97;
-        if (estaEnTablero(fila, columna)) {
-            return null;
+        if (!estaEnTablero(fila, columna)) {
+            throw new CoordenadasIncorrectasException("Las coordenadas no están dentro del tablero");
         }
         return matriz.get(fila).get(columna);
     }
@@ -270,7 +275,7 @@ public class Tablero {
      * al tablero se retorna "--".
      */
     public String obtenerCoordenadasEnNotacionAlgebraica(Celda celda) throws CoordenadasIncorrectasException {
-        if (estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
+        if (!estaEnTablero(celda.obtenerFila(), celda.obtenerColumna())) {
             return "--";
         }
         char fila = (char) (56 - celda.obtenerFila());
@@ -453,13 +458,13 @@ public class Tablero {
         }
         return null;
     }
-
+// TODO: HACER UN STRING CON EL MENSAJE DE ERROR
     /**
      * El método estaEnTablero devuelve true si las coordenadas están en el tablero, false en caso
      * contrario
      */
     public boolean estaEnTablero(int fila, int columna) {
-        return fila > (TAMANHO_POR_DEFECTO - 1) || columna > (TAMANHO_POR_DEFECTO - 1) || fila < 0 || columna < 0;
+        return fila < TAMANHO_POR_DEFECTO  && columna < TAMANHO_POR_DEFECTO  && fila > 0 && columna > 0;
     }
 
     /**
