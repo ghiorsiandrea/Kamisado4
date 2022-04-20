@@ -48,9 +48,49 @@ public class ArbitroEstandar extends ArbitroAbstracto {
      *
      * @param origen celda con la torre sumo que empuja
      * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas
+     *
+     * Las torres sumo uno tienen unas reglas de movimiento adicionales:
+     * • Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos
+     * básicos (vertical o diagonal).
+     * • Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado
+     * “empujón sumo”), pero solo en sentido vertical:
+     * ◦ Solo pueden empujar una torre del turno contrario.
+     * ◦ Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar torres del turno
+     * contrario fuera del tablero.
+     * ◦ No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
+     * ◦ Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
+     * turno que realizó el empujón.
+     * ◦ El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado situada la
+     * torre del contrario.
      */
     @Override
     public void empujarSumo(Celda origen) throws CoordenadasIncorrectasException {
+
+        if (!tablero.estaEnTablero(origen.obtenerFila(), origen.obtenerColumna())) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO,
+                    origen.obtenerFila(), origen.obtenerColumna()));
+        }
+
+        Celda celdaAMover;
+        Celda celdaObjetivo;
+
+        if (turnoActual == Turno.BLANCO) {
+            celdaAMover = tablero.obtenerCelda(origen.obtenerFila() + 1, origen.obtenerColumna());
+            celdaObjetivo = tablero.obtenerCelda(origen.obtenerFila() + 2, origen.obtenerColumna());
+        } else {
+            celdaAMover = tablero.obtenerCelda(origen.obtenerFila() - 1, origen.obtenerColumna());
+            celdaObjetivo = tablero.obtenerCelda(origen.obtenerFila() - 2, origen.obtenerColumna());
+        }
+
+        tablero.moverTorre(celdaAMover, celdaObjetivo);
+        tablero.moverTorre(origen, celdaAMover);
+
+        //Establezco el nuevo estado del arbitro
+
+        this.colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
+        this.colorCeldaUltimoMovimiento = celdaObjetivo.obtenerColor();
+        this.numeroJugada ++;
+        this.ultimoMovimientoEsCero = false;
 
     }
 
@@ -79,27 +119,41 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
     public boolean esEmpujonSumoLegal(Celda origen) throws CoordenadasIncorrectasException {
 
-
-
         if (!tablero.estaEnTablero(origen.obtenerFila(), origen.obtenerColumna())) {
             throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO,
                     origen.obtenerFila(), origen.obtenerColumna()));
         }
-        if (!(origen.obtenerTorre() instanceof TorreSumoUno)){
+        if (!(origen.obtenerTorre() instanceof TorreSumoUno)) {
             return false;
         }
 
         Celda celdaAMover;
         Celda celdaObjetivo;
-        if (turnoActual == Turno.BLANCO) {
-            celdaAMover = tablero.obtenerCelda(origen.obtenerFila() + 1, origen.obtenerColumna());
+
+
+        try {
+            if (turnoActual == Turno.BLANCO) {
+                celdaAMover = tablero.obtenerCelda(origen.obtenerFila() + 1, origen.obtenerColumna());
+                celdaObjetivo = tablero.obtenerCelda(origen.obtenerFila() + 2, origen.obtenerColumna());
+            } else {
+                celdaAMover = tablero.obtenerCelda(origen.obtenerFila() - 1, origen.obtenerColumna());
+                celdaObjetivo = tablero.obtenerCelda(origen.obtenerFila() - 2, origen.obtenerColumna());
+            }
+
+            if (celdaAMover.estaVacia() || celdaAMover.obtenerTurnoDeTorre() == turnoActual || !celdaObjetivo.estaVacia()) {
+                return false;
+            }
+            if ((celdaAMover.obtenerTorre() instanceof TorreSumoUno)) {
+                return false;
+            }
+        } catch (CoordenadasIncorrectasException e) {
+            return false;
         }
-        return false;
-        }
 
 
 
-
+        return true;
+    }
 
 
     private void SumarPuntosPorTurno() {
