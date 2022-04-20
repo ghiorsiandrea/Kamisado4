@@ -1,24 +1,54 @@
 package juego.control;
 
 import juego.modelo.*;
+import juego.modelo.Color;
 import juego.util.CoordenadasIncorrectasException;
+import juego.util.Message;
 import juego.util.Sentido;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArbitroEstandar extends ArbitroAbstracto {
+
+    private int numeroPuntosTurnoNegro;
+
+    private int numeroPuntosTurnoBlanco;
+
+    private List<TorreSumoUno> listaTorresSumoUno;
+
     public ArbitroEstandar(Tablero tablero) {
         super(tablero);
+        numeroPuntosTurnoNegro = 0;
+        numeroPuntosTurnoBlanco = 0;
+        listaTorresSumoUno = new ArrayList<TorreSumoUno>();
     }
 
     @Override
     public Turno consultarGanadorPartida() {
+        if (numeroPuntosTurnoNegro >= 3) {
+            return Turno.NEGRO;
+        }
+        if (numeroPuntosTurnoBlanco >= 3) {
+            return Turno.BLANCO;
+        }
         return null;
     }
 
     @Override
     public Turno consultarGanadorRonda() {
-        return null;
+        return consultarGanador();
     }
+// TODO
 
+    /**
+     * Realiza un empujón sumo con la torre en la celda de origen.
+     * Si la celda está vacía, no se realiza ninguna operación.
+     *
+     * @param origen celda con la torre sumo que empuja
+     * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas
+     */
     @Override
     public void empujarSumo(Celda origen) throws CoordenadasIncorrectasException {
 
@@ -26,31 +56,129 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
     @Override
     public boolean estaAcabadaPartida() {
+        if (numeroPuntosTurnoNegro >= 3 || numeroPuntosTurnoBlanco >= 3) {
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean estaAcabadaRonda() {
-        return false;
+        return consultarGanador() != null;
     }
 
+    /**
+     * Comprueba si es legal realizar un empujón sumo con la torre colocada en la celda de origen.
+     *
+     * @param origen celda de origen
+     * @return true si es legal el empujón sumo, false en caso contrario
+     * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas
+     */
+    // TODO
     @Override
+
     public boolean esEmpujonSumoLegal(Celda origen) throws CoordenadasIncorrectasException {
+
+
+
+        if (!tablero.estaEnTablero(origen.obtenerFila(), origen.obtenerColumna())) {
+            throw new CoordenadasIncorrectasException(String.format(Message.ERROR_CELDA_FUERA_TABLERO,
+                    origen.obtenerFila(), origen.obtenerColumna()));
+        }
+        if (!(origen.obtenerTorre() instanceof TorreSumoUno)){
+            return false;
+        }
+
+        Celda celdaAMover;
+        Celda celdaObjetivo;
+        if (turnoActual == Turno.BLANCO) {
+            celdaAMover = tablero.obtenerCelda(origen.obtenerFila() + 1, origen.obtenerColumna());
+        }
         return false;
+        }
+
+
+
+
+
+
+    private void SumarPuntosPorTurno() {
+        if (consultarGanador() == Turno.BLANCO) {
+            numeroPuntosTurnoBlanco++;
+        } else numeroPuntosTurnoNegro++;
     }
 
     @Override
     public int obtenerPuntuacionTurnoBlanco() {
-        return 0;
+        return numeroPuntosTurnoBlanco;
     }
 
     @Override
     public int obtenerPuntuacionTurnoNegro() {
-        return 0;
+        return numeroPuntosTurnoNegro;
     }
 
     @Override
     public void reiniciarRonda() {
+        // Vamos a hacer dos métodos
+
+
+//        // Metodo 1, saco todas las torres del tablero y las guardo en una lista
+//        Turno turnoGanadorRonda = consultarGanadorRonda();
+//        try {
+//            List<Torre> listaTorres = new ArrayList<>();
+//            for (int fila = 0; fila < tablero.obtenerNumeroFilas(); fila++) {
+//                for (int columna = 0; columna < tablero.obtenerNumeroColumnas(); columna++) {
+//                    Celda celda = tablero.obtenerCelda(fila, columna);
+//                    if (!celda.estaVacia()) {
+//                        listaTorres.add(celda.obtenerTorre());
+//                        celda.eliminarTorre();
+//                    }
+//                }
+//            }
+//            // Debo colocar todas las torres en sus lugares iniciales
+//            for (Torre torre : listaTorres) {
+//                // Esto es un operador ternario que sustituye al if
+//                int fila = torre.obtenerTurno() == Turno.BLANCO ? 0 : tablero.obtenerNumeroFilas() - 1;
+//                for (int columna = 0; columna < tablero.obtenerNumeroColumnas(); columna++) {
+//                    Celda celda = tablero.obtenerCelda(fila, columna);
+//                    if (celda.obtenerColor() == torre.obtenerColor()) {
+//                        tablero.colocar(torre, celda);
+//                    }
+//                }
+//            }
+//
+//            //Establezco el nuevo estado del arbitro
+//            this.colorCeldaUltimoMovimiento = null;
+//            this.colorPenultimoMovimiento = null;
+//            this.turnoActual = turnoGanadorRonda == Turno.BLANCO ? Turno.NEGRO : Turno.BLANCO;
+//            this.numeroJugada = 0;
+//            this.ultimoMovimientoEsCero = false;
+//
+//        } catch (CoordenadasIncorrectasException e) {
+//            System.out.println(e.getMessage());
+//        }
+
+        //Metodo 2: Creo una lista de torres sumos uno, luego asigno esas torres al tablero mediante un for
+
+        Turno turnoGanadorRonda = consultarGanadorRonda();
+
+        this.tablero = new Tablero();
+        colocarTorres();
+        for (TorreSumoUno torreSumoUno : listaTorresSumoUno) {
+            Turno turnoSumoUno = torreSumoUno.obtenerTurno();
+            Color colorSumoUno = torreSumoUno.obtenerColor();
+            Celda celdaTorreSumoUno = tablero.buscarTorre(turnoSumoUno, colorSumoUno);
+            celdaTorreSumoUno.eliminarTorre();
+            celdaTorreSumoUno.establecerTorre(torreSumoUno);
+
+            //Establezco el nuevo estado del arbitro
+            this.colorCeldaUltimoMovimiento = null;
+            this.colorPenultimoMovimiento = null;
+            this.turnoActual = turnoGanadorRonda == Turno.BLANCO ? Turno.NEGRO : Turno.BLANCO;
+            this.numeroJugada = 0;
+            this.ultimoMovimientoEsCero = false;
+        }
 
     }
 
