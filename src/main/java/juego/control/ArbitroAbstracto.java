@@ -177,4 +177,45 @@ public abstract class ArbitroAbstracto implements Arbitro {
         return ultimoMovimientoEsCero && estaBloqueadoTurnoActual();
     }
 
+    /**
+     *  El método esMovimientoLegalConTurnoActual dadas la celda origen y destino, devuelve true si es legal
+     * realizar el movimiento con el turno actual, o false en caso contrario.
+     */
+    @Override
+    public boolean esMovimientoLegalConTurnoActual(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
+
+        if (origen.estaVacia() || !destino.estaVacia()) {
+            return false;
+        }
+        if (!tablero.estanVaciasCeldasEntre(origen, destino)) {
+            return false;
+        }
+        if (colorCeldaUltimoMovimiento != null && origen.obtenerColorDeTorre() != colorCeldaUltimoMovimiento) {
+            return false;
+        }
+
+        if (turnoActual == Turno.NEGRO && origen.obtenerFila() < destino.obtenerFila()) {
+            return false;
+        }
+        if (turnoActual == Turno.BLANCO && origen.obtenerFila() > destino.obtenerFila()) {
+            return false;
+        }
+
+        //Este es el metodo largo, pero aplicando el polimorfismo sabemos que la torre se va a comportar diferente segun
+        // si sea una instancia de sumo uno o simple, y el metodo corto ya piensa a futuro
+//        int distancia = tablero.obtenerDistancia(origen, destino);
+//
+//        if (origen.obtenerTorre()instanceof TorreSumoUno && distancia > origen.obtenerTorre().obtenerMaximoAlcance()) {
+//           return false;
+//        }
+
+        //Mètodo corto
+        int distancia = tablero.obtenerDistancia(origen, destino);
+
+        if (distancia > origen.obtenerTorre().obtenerMaximoAlcance()) {
+            return false;
+        }
+        return turnoActual == origen.obtenerTurnoDeTorre();
+    }
+
 }

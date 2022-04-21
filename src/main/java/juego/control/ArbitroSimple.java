@@ -153,31 +153,6 @@ public class ArbitroSimple extends ArbitroAbstracto {
         return null;
     }
 
-    /**
-     *  El método esMovimientoLegalConTurnoActual dadas la celda origen y destino, devuelve true si es legal
-     * realizar el movimiento con el turno actual, o false en caso contrario.
-     */
-    @Override
-    public boolean esMovimientoLegalConTurnoActual(Celda origen, Celda destino) throws CoordenadasIncorrectasException {
-
-        if (origen.estaVacia() || !destino.estaVacia()) {
-            return false;
-        }
-        if (!tablero.estanVaciasCeldasEntre(origen, destino)) {
-            return false;
-        }
-        if (colorCeldaUltimoMovimiento != null && origen.obtenerColorDeTorre() != colorCeldaUltimoMovimiento) {
-            return false;
-        }
-
-        if (turnoActual == Turno.NEGRO && origen.obtenerFila() < destino.obtenerFila()) {
-            return false;
-        }
-        if (turnoActual == Turno.BLANCO && origen.obtenerFila() > destino.obtenerFila()) {
-            return false;
-        }
-        return turnoActual == origen.obtenerTurnoDeTorre();
-    }
 
     //TODO: TRY CATCH
 
