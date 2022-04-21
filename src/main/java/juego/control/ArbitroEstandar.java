@@ -45,23 +45,20 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     /**
      * Realiza un empujón sumo con la torre en la celda de origen.
      * Si la celda está vacía, no se realiza ninguna operación.
-     *
      * @param origen celda con la torre sumo que empuja
      * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas
-     *                                         <p>
-     *                                         Las torres sumo uno tienen unas reglas de movimiento adicionales:
-     *                                         • Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos
-     *                                         básicos (vertical o diagonal).
-     *                                         • Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado
-     *                                         “empujón sumo”), pero solo en sentido vertical:
-     *                                         ◦ Solo pueden empujar una torre del turno contrario.
-     *                                         ◦ Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar torres del turno
-     *                                         contrario fuera del tablero.
-     *                                         ◦ No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
-     *                                         ◦ Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
-     *                                         turno que realizó el empujón.
-     *                                         ◦ El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado situada la
-     *                                         torre del contrario.
+     * Las torres sumo uno tienen unas reglas de movimiento adicionales:
+     * • Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos básicos (vertical o diagonal).
+     * • Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado
+     *  “empujón sumo”), pero solo en sentido vertical:
+     *  ◦ Solo pueden empujar una torre del turno contrario.
+     *  ◦ Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar torres del turno
+     *  contrario fuera del tablero.
+     * ◦ No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
+     * ◦ Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
+     * turno que realizó el empujón.
+     * ◦ El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado situada la
+     * torre del contrario.
      */
     @Override
     public void empujarSumo(Celda origen) throws CoordenadasIncorrectasException {
@@ -105,6 +102,7 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     @Override
     public boolean estaAcabadaRonda() {
         return consultarGanador() != null;
+
     }
 
     /**
@@ -214,6 +212,7 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
         //Metodo 2: Creo una lista de torres sumos uno, luego asigno esas torres al tablero mediante un for
 
+
         Turno turnoGanadorRonda = consultarGanadorRonda();
 
         this.tablero = new Tablero();
@@ -237,87 +236,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
 
     //TODO: ACA COMIENZO A DISCRIMINAR MÈTODOS
-
-    /**
-     *  El método colocarTorres() inicializa el tablero asignado en el constructor, con todas las torres
-     * de ambos jugadores en sus filas correspondientes.
-     */
-    @Override
-    public void colocarTorres() {
-
-        // esta es la opcion larga, solo queda de ejemplo
-        // tablero.colocar(new Torre(Turno.BLANCO, Color.NARANJA), 0, 0);
-        // tablero.colocar(new Torre(Turno.BLANCO, Color.NARANJA), 0, 0);
-
-        for (int i = 0; i < tablero.obtenerNumeroColumnas(); i++) {
-            try {
-                tablero.colocar(new TorreSimple(Turno.BLANCO, tablero.obtenerCelda(0, i).obtenerColor()), 0, i);
-            } catch (CoordenadasIncorrectasException e) {
-                e.printStackTrace();
-            }
-            try {
-                tablero.colocar(new TorreSimple(Turno.NEGRO, tablero.obtenerCelda(7, i).obtenerColor()), 7, i);
-            } catch (CoordenadasIncorrectasException e) {
-                e.printStackTrace();
-            }
-        }
-        this.turnoActual = Turno.NEGRO;
-    }
-
-    /**
-     *  El método colocarTorres(Torre[], String[], Color, Color, Turno) permite inicializar el tablero con una
-     * configuración diferente a la inicial, pasando un array de torres, un array de coordenadas en notacion algebraica
-     * donde colocar las torres, el color del último movimiento del jugador con turno negro, el color del último
-     * movimiento del jugador con turno blanco y el jugador con turno actual.
-     * ◦ Nota: este método se implementa para ser utilizados en los tests automáticos y para facilitar al alumnado
-     * las pruebas y depuración del código.
-     * Se puede sustituir temporalmente la invocación al método colocarTorres() por este método para cargar partidas
-     * más simples de probar, sin tener que realizar tantos movimientos.
-     */
-    @Override
-    public void colocarTorres(Torre[] torres, String[] coordenadas, Color ultimoColorTurnoNegro,
-                              Color ultimoColorTurnoBlanco, Turno turnoActual) throws CoordenadasIncorrectasException {
-
-        if (torres.length != coordenadas.length || torres.length == 0) {
-            return;
-        }
-        for (int i = 0; i < torres.length; i++) {
-//            Esta es una forma mas larga y ordenada de hacerlo
-//            Torre torre = torres[i];
-//            String coordenada = coordenadas[i];
-//            tablero.colocar(torre, coordenada);
-
-            tablero.colocar(torres[i], coordenadas[i]);
-        }
-        this.turnoActual = turnoActual;
-        if (turnoActual == Turno.NEGRO) {
-            colorCeldaUltimoMovimiento = ultimoColorTurnoBlanco;
-            colorPenultimoMovimiento = ultimoColorTurnoNegro;
-        } else {
-            colorCeldaUltimoMovimiento = ultimoColorTurnoNegro;
-            colorPenultimoMovimiento = ultimoColorTurnoBlanco;
-
-        }
-    }
-
-    /**
-     *  El método consultarGanador retorna el turno del ganador de la partida, bien por alcanzar la fila  de salida
-     * del jugador contrario, o bien por existir bloqueo mutuo. Si no hay ganador devuelve null.
-     */
-    public Turno consultarGanador() {
-
-        if (estaAlcanzadaUltimaFilaPor(Turno.BLANCO)) {
-            return Turno.BLANCO;
-        }
-        if (estaAlcanzadaUltimaFilaPor(Turno.NEGRO)) {
-            return Turno.NEGRO;
-        }
-        if (hayBloqueoMutuo()) {
-            return obtenerTurnoSiguiente();
-        }
-        return null;
-    }
-
 
 
     //TODO: TRY CATCH
@@ -383,35 +301,11 @@ public class ArbitroEstandar extends ArbitroAbstracto {
         colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
         colorCeldaUltimoMovimiento = destino.obtenerColor();
         ultimoMovimientoEsCero = false;
-    }
-
-    protected Sentido[] sentidosDeTurno(Turno turno) {
-
-        if (turno == Turno.BLANCO) {
-            return new Sentido[]{Sentido.DIAGONAL_SO, Sentido.VERTICAL_S, Sentido.DIAGONAL_SE};
-
-        } else {
-            return new Sentido[]{Sentido.DIAGONAL_NO, Sentido.VERTICAL_N, Sentido.DIAGONAL_NE};
+        if (estaAcabadaRonda() && !estaAcabadaPartida()) {
+            SumarPuntosPorTurno();
         }
     }
 
-
-    /**
-     *  El método moverConTurnoActualBloqueado realizar un movimiento de “distancia cero” para el
-     * jugador con turno actual. Se supone que previamente se ha comprobado la situación de bloqueo
-     * del jugador y no es necesario volver a comprobarlo. Debe ajustar el color de último movimiento
-     * para el turno actual y cambiar el turno, teniendo en cuenta que se ha finalizado una jugada.
-     */
-    @Override
-    public void moverConTurnoActualBloqueado() {
-        Celda celdaTorreConMovimientoCero = tablero.buscarTorre(turnoActual, colorCeldaUltimoMovimiento);
-        colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
-        colorCeldaUltimoMovimiento = celdaTorreConMovimientoCero.obtenerColor();
-
-        this.numeroJugada++;
-        this.cambiarTurno();
-        ultimoMovimientoEsCero = true;
-    }
 
 }
 

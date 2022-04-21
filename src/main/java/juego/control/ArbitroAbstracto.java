@@ -68,16 +68,6 @@ public abstract class ArbitroAbstracto implements Arbitro {
         }
     }
 
-    protected Sentido[] sentidosDeTurno(Turno turno) {
-
-        if (turno == Turno.BLANCO) {
-            return new Sentido[]{Sentido.DIAGONAL_SO, Sentido.VERTICAL_S, Sentido.DIAGONAL_SE};
-
-        } else {
-            return new Sentido[]{Sentido.DIAGONAL_NO, Sentido.VERTICAL_N, Sentido.DIAGONAL_NE};
-        }
-    }
-
     //TODO: TRY CATCH
 
     /**
@@ -218,4 +208,110 @@ public abstract class ArbitroAbstracto implements Arbitro {
         return turnoActual == origen.obtenerTurnoDeTorre();
     }
 
+    protected Sentido[] sentidosDeTurno(Turno turno) {
+
+        if (turno == Turno.BLANCO) {
+            return new Sentido[]{Sentido.DIAGONAL_SO, Sentido.VERTICAL_S, Sentido.DIAGONAL_SE};
+
+        } else {
+            return new Sentido[]{Sentido.DIAGONAL_NO, Sentido.VERTICAL_N, Sentido.DIAGONAL_NE};
+        }
+    }
+
+
+    /**
+     *  El método moverConTurnoActualBloqueado realizar un movimiento de “distancia cero” para el
+     * jugador con turno actual. Se supone que previamente se ha comprobado la situación de bloqueo
+     * del jugador y no es necesario volver a comprobarlo. Debe ajustar el color de último movimiento
+     * para el turno actual y cambiar el turno, teniendo en cuenta que se ha finalizado una jugada.
+     */
+    @Override
+    public void moverConTurnoActualBloqueado() {
+        Celda celdaTorreConMovimientoCero = tablero.buscarTorre(turnoActual, colorCeldaUltimoMovimiento);
+        colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
+        colorCeldaUltimoMovimiento = celdaTorreConMovimientoCero.obtenerColor();
+
+        this.numeroJugada++;
+        this.cambiarTurno();
+        ultimoMovimientoEsCero = true;
+    }
+    /**
+     *  El método consultarGanador retorna el turno del ganador de la partida, bien por alcanzar la fila  de salida
+     * del jugador contrario, o bien por existir bloqueo mutuo. Si no hay ganador devuelve null.
+     */
+    public Turno consultarGanador() {
+
+        if (estaAlcanzadaUltimaFilaPor(Turno.BLANCO)) {
+            return Turno.BLANCO;
+        }
+        if (estaAlcanzadaUltimaFilaPor(Turno.NEGRO)) {
+            return Turno.NEGRO;
+        }
+        if (hayBloqueoMutuo()) {
+            return obtenerTurnoSiguiente();
+        }
+        return null;
+    }
+
+    /**
+     *  El método colocarTorres() inicializa el tablero asignado en el constructor, con todas las torres
+     * de ambos jugadores en sus filas correspondientes.
+     */
+    @Override
+    public void colocarTorres() {
+
+        // esta es la opcion larga, solo queda de ejemplo
+        // tablero.colocar(new Torre(Turno.BLANCO, Color.NARANJA), 0, 0);
+        // tablero.colocar(new Torre(Turno.BLANCO, Color.NARANJA), 0, 0);
+
+        for (int i = 0; i < tablero.obtenerNumeroColumnas(); i++) {
+            try {
+                tablero.colocar(new TorreSimple(Turno.BLANCO, tablero.obtenerCelda(0, i).obtenerColor()), 0, i);
+            } catch (CoordenadasIncorrectasException e) {
+                e.printStackTrace();
+            }
+            try {
+                tablero.colocar(new TorreSimple(Turno.NEGRO, tablero.obtenerCelda(7, i).obtenerColor()), 7, i);
+            } catch (CoordenadasIncorrectasException e) {
+                e.printStackTrace();
+            }
+        }
+        this.turnoActual = Turno.NEGRO;
+    }
+
+    /**
+     *  El método colocarTorres(Torre[], String[], Color, Color, Turno) permite inicializar el tablero con una
+     * configuración diferente a la inicial, pasando un array de torres, un array de coordenadas en notacion algebraica
+     * donde colocar las torres, el color del último movimiento del jugador con turno negro, el color del último
+     * movimiento del jugador con turno blanco y el jugador con turno actual.
+     * ◦ Nota: este método se implementa para ser utilizados en los tests automáticos y para facilitar al alumnado
+     * las pruebas y depuración del código.
+     * Se puede sustituir temporalmente la invocación al método colocarTorres() por este método para cargar partidas
+     * más simples de probar, sin tener que realizar tantos movimientos.
+     */
+    @Override
+    public void colocarTorres(Torre[] torres, String[] coordenadas, Color ultimoColorTurnoNegro,
+                              Color ultimoColorTurnoBlanco, Turno turnoActual) throws CoordenadasIncorrectasException {
+
+        if (torres.length != coordenadas.length || torres.length == 0) {
+            return;
+        }
+        for (int i = 0; i < torres.length; i++) {
+//            Esta es una forma mas larga y ordenada de hacerlo
+//            Torre torre = torres[i];
+//            String coordenada = coordenadas[i];
+//            tablero.colocar(torre, coordenada);
+
+            tablero.colocar(torres[i], coordenadas[i]);
+        }
+        this.turnoActual = turnoActual;
+        if (turnoActual == Turno.NEGRO) {
+            colorCeldaUltimoMovimiento = ultimoColorTurnoBlanco;
+            colorPenultimoMovimiento = ultimoColorTurnoNegro;
+        } else {
+            colorCeldaUltimoMovimiento = ultimoColorTurnoNegro;
+            colorPenultimoMovimiento = ultimoColorTurnoBlanco;
+
+        }
+    }
 }
