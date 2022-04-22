@@ -44,21 +44,20 @@ public class ArbitroEstandar extends ArbitroAbstracto {
     /**
      * Realiza un empujón sumo con la torre en la celda de origen.
      * Si la celda está vacía, no se realiza ninguna operación.
+     * Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos básicos (vertical o diagonal).
+     * Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado “empujón
+     * sumo”), pero solo en sentido vertical:
+     * Solo pueden empujar una torre del turno contrario.
+     * Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar torres del turno
+     * contrario fuera del tablero.
+     * No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
+     * Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
+     * turno que realizó el empujón.
+     * El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado situada la
+     * torre del contrario.
      *
      * @param origen celda con la torre sumo que empuja
-     * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas
-     *                                         Las torres sumo uno tienen unas reglas de movimiento adicionales:
-     *                                         • Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos básicos (vertical o diagonal).
-     *                                         • Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado
-     *                                         “empujón sumo”), pero solo en sentido vertical:
-     *                                         ◦ Solo pueden empujar una torre del turno contrario.
-     *                                         ◦ Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar torres del turno
-     *                                         contrario fuera del tablero.
-     *                                         ◦ No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
-     *                                         ◦ Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
-     *                                         turno que realizó el empujón.
-     *                                         ◦ El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado situada la
-     *                                         torre del contrario.
+     * @throws CoordenadasIncorrectasException si las coordenadas de la celda origen son incorrectas.
      */
     @Override
     public void empujarSumo(Celda origen) throws CoordenadasIncorrectasException {
@@ -84,7 +83,6 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
         //Establezco el nuevo estado del arbitro
 
-        this.colorPenultimoMovimiento = colorCeldaUltimoMovimiento;
         this.colorCeldaUltimoMovimiento = celdaObjetivo.obtenerColor();
         this.numeroJugada++;
         this.ultimoMovimientoEsCero = false;
