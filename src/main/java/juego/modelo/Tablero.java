@@ -177,6 +177,7 @@ public class Tablero {
         }
         Torre torre = origen.obtenerTorre();
         destino.establecerTorre(torre);
+        torre.establecerCelda(destino);
         origen.eliminarTorre();
     }
 
