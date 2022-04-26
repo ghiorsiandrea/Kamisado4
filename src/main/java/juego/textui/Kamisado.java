@@ -1,28 +1,6 @@
 package juego.textui;
 
-import static com.diogonunes.jcolor.Ansi.colorize;
-import static com.diogonunes.jcolor.Attribute.BACK_COLOR;
-import static com.diogonunes.jcolor.Attribute.BLACK_BACK;
-import static com.diogonunes.jcolor.Attribute.BLACK_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_BLUE_BACK;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_BLUE_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_GREEN_BACK;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_GREEN_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_MAGENTA_BACK;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_MAGENTA_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_RED_BACK;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_RED_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_WHITE_BACK;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_WHITE_TEXT;
-import static com.diogonunes.jcolor.Attribute.BRIGHT_YELLOW_BACK;
-import static com.diogonunes.jcolor.Attribute.TEXT_COLOR;
-
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Scanner;
-
 import com.diogonunes.jcolor.Attribute;
-
 import juego.control.Arbitro;
 import juego.control.ArbitroEstandar;
 import juego.control.ArbitroSimple;
@@ -31,6 +9,11 @@ import juego.modelo.Color;
 import juego.modelo.Tablero;
 import juego.modelo.Turno;
 import juego.util.CoordenadasIncorrectasException;
+
+import java.util.Scanner;
+
+import static com.diogonunes.jcolor.Ansi.colorize;
+import static com.diogonunes.jcolor.Attribute.*;
 
 /**
  * Ajedrez en modo texto.
@@ -81,33 +64,26 @@ public class Kamisado {
      */
     // TODO:
     public static void main(String[] args) {
-        // COMPLETAR POR EL ALUMNADO
-        // Algoritmo de kamisado en modo texto.
-        // Revisar los métodos ya disponibles y reutilizarlos.
 
         //args = new String[]{"simple"};
         //System.out.println(extraerModoArbitro(args));
 
-
         mostrarMensajeBienvenida();
-        String inicioJuego = scanner.nextLine();
         inicializarPartida(configuracion = "simple");
-
-        switch (inicioJuego) {
-            case "salir":
-                mostrarInterrupcionPartida();
-                System.exit(0);
-                break;
-            case "texto":
-                mostrarTableroEnFormatoTexto();
-                mostrarMensajeBienvenida();
-            case "elegir":
-                elegirModoJuego();
-            default:
-                mostrarErrorEnFormatoDeEntrada();
-
+        String inicioJuego;
+        do {
+            inicioJuego = scanner.nextLine().toLowerCase();
+            switch (inicioJuego) {
+                case "texto" -> {
+                    mostrarTableroEnFormatoTexto();
+                    mostrarMensajeBienvenida();
+                }
+                case "elegir" -> elegirModoJuego();
+                case "salir" -> System.out.println("El usuario ha decidido salir del juego. Vuelva pronto");
+                default -> mostrarErrorEnFormatoDeEntrada();
+            }
         }
-        while (arbitro.consultarGanadorRonda() == null) ;
+        while (!inicioJuego.equals("salir"));
         finalizarPartida();
 
     }
@@ -117,56 +93,64 @@ public class Kamisado {
             String modoJuego = recogerModoJuego().toLowerCase();
 
             switch (modoJuego) {
+                case "simple" -> jugarPartidaSimple();
+                case "estandar" -> jugarPartidaEstandar();
+                default -> mostrarErrorEnFormatoDeEntrada();
+            }
+        } while ((arbitro.consultarGanadorPartida() == null));
+        finalizarPartida();
+    }
 
-                case "simple":
-                    System.out.println("Disfrute de la partida en modo simple");
-                    mostrarTableroEnPantalla();
-                    do {
-                        String jugada = recogerJugadaSimple().toLowerCase();
+    private static void jugarPartidaSimple() {
+        System.out.println("Disfrute de la partida en modo simple");
+        mostrarTableroEnPantalla();
+        do {
+            String jugada = recogerJugadaSimple().toLowerCase();
 
-                        switch (jugada) {
+            switch (jugada) {
 
-                            case "salir":
-                                mostrarInterrupcionPartida();
-                                System.exit(0);
-                                break;
-                            case "texto":
-                                mostrarTableroEnFormatoTexto();
-                                break;
-                            default:
-                                if (validarFormato(jugada)) {
-                                    realizarJugada((jugada));
-                                    mostrarTableroEnPantalla();
-                                    mostrarInformacionUltimoMovimiento();
-                                } else {
-                                    mostrarErrorEnFormatoDeEntrada();
-                                }
-                        }
-                    } while (arbitro.consultarGanadorRonda() == null);
-                    finalizarPartida();
+                case "salir":
+                    mostrarInterrupcionPartida();
+                    System.out.println("El usuario ha decidido salir del juego. Vuelva pronto");
                     break;
-                case "estandar":
-                    System.out.println("Disfrute de la partida en modo estandar");
-                    mostrarTableroEnPantalla();
-                    String jugada = recogerJugada().toLowerCase();
+                case "texto":
+                    mostrarTableroEnFormatoTexto();
+                    break;
+                default:
                     if (validarFormato(jugada)) {
                         realizarJugada((jugada));
                         mostrarTableroEnPantalla();
                         mostrarInformacionUltimoMovimiento();
+                    } else {
+                        mostrarErrorEnFormatoDeEntrada();
                     }
-                    break;
-                default:
-                    mostrarErrorEnFormatoDeEntrada();
             }
-        } while ((arbitro.consultarGanadorPartida() == null));
+        } while (arbitro.consultarGanadorRonda() == null);
         finalizarPartida();
+
+    }
+
+    private static void jugarPartidaEstandar() {
+
+        System.out.println("Disfrute de la partida en modo estandar");
+        mostrarTableroEnPantalla();
+        do {
+            String jugada = recogerJugada().toLowerCase();
+            if (validarFormato(jugada)) {
+                realizarJugada((jugada));
+                mostrarTableroEnPantalla();
+                mostrarInformacionUltimoMovimiento();
+            } else {
+                mostrarErrorEnFormatoDeEntrada();
+            }
+        } while (arbitro.consultarGanadorRonda() == null);
     }
 
     /**
      * Recoge modo juego del teclado.
      */
     private static String recogerInicioJuego() {
-        System.out.printf("Introduzca el modo del juego deseado: Simple o Estandar \n");
+        System.out.print("Introduzca el modo del juego deseado: Simple o Estandar \n");
         return scanner.next();
     }
 
@@ -174,7 +158,7 @@ public class Kamisado {
      * Recoge modo juego del teclado.
      */
     private static String recogerModoJuego() {
-        System.out.printf("Introduzca el modo del juego deseado: Simple o Estandar \n");
+        System.out.print("Introduzca el modo del juego deseado: Simple o Estandar \n");
         return scanner.next();
     }
 
@@ -292,6 +276,7 @@ public class Kamisado {
                 arbitro.empujarSumo(origen);
                 // tras empujon sumo sigue teniendo turno el turno actual
                 if (arbitro.estaBloqueadoTurnoActual()) {
+                    assert origen != null;
                     System.out.println("Bloqueada la torre " + origen.obtenerColor() + " del jugador con turno "
                             + arbitro.obtenerTurno() + ".");
                     System.out.println("Se realiza un movimiento de distancia cero y pierde el turno.\n");
@@ -356,14 +341,18 @@ public class Kamisado {
      * Finaliza la partida informando al usuario y cerrando recursos abiertos.
      */
     private static void finalizarPartida() {
-        System.out.printf("Partida finalizada ganando las torres de turno %s.", arbitro.consultarGanadorPartida());
+        if (arbitro.consultarGanadorPartida() != null) {
+            System.out.printf("Partida finalizada ganando las torres de turno %s.", arbitro.consultarGanadorPartida());
+        } else {
+            System.out.printf("Partida finalizada, vuelva pronto");
+        }
     }
 
     /**
      * Muestra información del último movimiento.
      */
     private static void mostrarInformacionUltimoMovimiento() {
-        Color color = null;
+        Color color;
         System.out.println();
 
         color = arbitro.obtenerUltimoMovimiento(Turno.NEGRO);
@@ -471,33 +460,16 @@ public class Kamisado {
      * @return color de texto
      */
     private static Attribute elegirColorTexto(Color color) {
-        Attribute colorTexto = null;
-        switch (color) {
-            case AMARILLO:
-                colorTexto = TEXT_COLOR(223, 227, 12); // BRIGHT_YELLOW_TEXT();
-                break;
-            case AZUL:
-                colorTexto = BRIGHT_BLUE_TEXT();
-                break;
-            case MARRON:
-                colorTexto = TEXT_COLOR(110, 44, 0);
-                break;
-            case NARANJA:
-                colorTexto = TEXT_COLOR(248, 162, 65);
-                break;
-            case ROJO:
-                colorTexto = BRIGHT_RED_TEXT();
-                break;
-            case ROSA:
-                colorTexto = BRIGHT_MAGENTA_TEXT();
-                break;
-            case PURPURA:
-                colorTexto = TEXT_COLOR(155, 89, 182);
-                break;
-            case VERDE:
-                colorTexto = BRIGHT_GREEN_TEXT();
-                break;
-        }
+        Attribute colorTexto = switch (color) {
+            case AMARILLO -> TEXT_COLOR(223, 227, 12); // BRIGHT_YELLOW_TEXT();
+            case AZUL -> BRIGHT_BLUE_TEXT();
+            case MARRON -> TEXT_COLOR(110, 44, 0);
+            case NARANJA -> TEXT_COLOR(248, 162, 65);
+            case ROJO -> BRIGHT_RED_TEXT();
+            case ROSA -> BRIGHT_MAGENTA_TEXT();
+            case PURPURA -> TEXT_COLOR(155, 89, 182);
+            case VERDE -> BRIGHT_GREEN_TEXT();
+        };
         return colorTexto;
     }
 
@@ -508,39 +480,18 @@ public class Kamisado {
      * @return color de fondo
      */
     private static Attribute elegirColorFondo(Color color) {
-        Attribute colorFondo = null;
-        switch (color) {
-            case AMARILLO:
-                colorFondo = BRIGHT_YELLOW_BACK();
-                break;
-            case AZUL:
-                colorFondo = BRIGHT_BLUE_BACK();
-                break;
-            case MARRON:
-                colorFondo = BACK_COLOR(110, 44, 0);
-                break;
-            case NARANJA:
-                colorFondo = BACK_COLOR(248, 162, 65);
-                break;
-            case ROJO:
-                colorFondo = BRIGHT_RED_BACK();
-                break;
-            case ROSA:
-                colorFondo = BRIGHT_MAGENTA_BACK();
-                break;
-            case PURPURA:
-                colorFondo = BACK_COLOR(155, 89, 182);
-                break;
-            case VERDE:
-                colorFondo = BRIGHT_GREEN_BACK();
-                break;
-        }
+        Attribute colorFondo = switch (color) {
+            case AMARILLO -> BRIGHT_YELLOW_BACK();
+            case AZUL -> BRIGHT_BLUE_BACK();
+            case MARRON -> BACK_COLOR(110, 44, 0);
+            case NARANJA -> BACK_COLOR(248, 162, 65);
+            case ROJO -> BRIGHT_RED_BACK();
+            case ROSA -> BRIGHT_MAGENTA_BACK();
+            case PURPURA -> BACK_COLOR(155, 89, 182);
+            case VERDE -> BRIGHT_GREEN_BACK();
+        };
         return colorFondo;
     }
-
-//    private static void elegirModoParaTexto() {
-//        arbitro = new ArbitroSimple(tablero);
-//    }
 
     /**
      * Inicializa el estado de los elementos de la partida.
@@ -549,15 +500,10 @@ public class Kamisado {
      */
     private static void inicializarPartida(String configuracion) {
         tablero = new Tablero();
-        switch (configuracion) {
-            case "simple":
-                arbitro = new ArbitroSimple(tablero);
-                break;
-            case "estandar":
-                arbitro = new ArbitroEstandar(tablero);
-                break;
-            default:
-                arbitro = new ArbitroSimple(tablero);
+        if ("estandar".equals(configuracion)) {
+            arbitro = new ArbitroEstandar(tablero);
+        } else {
+            arbitro = new ArbitroSimple(tablero);
         }
         // Abrimos la lectura desde teclado
         arbitro.colocarTorres();
@@ -613,15 +559,28 @@ public class Kamisado {
      * disponibles del tablero
      */
     private static boolean validarFormatoEmpujonSumo(String jugada) {
-        boolean estado = true;
+//       opcion 1
+//       boolean estado = true;
 //		if (jugada.length() != TAMAÑO_EMPUJON_SUMO || esLetraInvalida(jugada.charAt(0)) // RMS
 //				|| esLetraInvalida(jugada.charAt(2))) {
-        if (jugada.length() != TAMAÑO_EMPUJON_SUMO || esLetraInvalida(jugada.charAt(0))
-                || esNumeroInvalido(jugada.charAt(1))) {
-            estado = false;
-        }
-        return estado;
+
+//        opcion 2
+//        boolean estado = true;
+//        if (jugada.length() != TAMAÑO_EMPUJON_SUMO || esLetraInvalida(jugada.charAt(0))
+//                || esNumeroInvalido(jugada.charAt(1))) {
+//            estado = false;
+//        }
+
+//        opcion 3
+//        boolean estado = jugada.length() == TAMAÑO_EMPUJON_SUMO && !esLetraInvalida(jugada.charAt(0))
+//                && !esNumeroInvalido(jugada.charAt(1));
+//        return estado;
+
+        // opcion 4
+        return jugada.length() == TAMAÑO_EMPUJON_SUMO && !esLetraInvalida(jugada.charAt(0))
+                && !esNumeroInvalido(jugada.charAt(1));
     }
+
 
     /**
      * Comprueba si la letra está fuera del rango [a,h].

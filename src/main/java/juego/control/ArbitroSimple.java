@@ -95,8 +95,10 @@ public class ArbitroSimple extends ArbitroAbstracto {
             Celda celdaPosibleMovimiento = null;
             try {
                 celdaPosibleMovimiento = tablero.obtenerCelda(filaPosibleMovimiento, columnaPosibleMovimiento);
-            } catch (CoordenadasIncorrectasException e) {
-                e.printStackTrace();
+            } catch (CoordenadasIncorrectasException ignored) {
+                //Si al obtener celda, uno de los posibles sentidos para el turno actual se encuentra bloqueado, no
+                // deberia detenerse el juego o aparecer la ruta del error durante la partida
+                continue;
             }
 
             // Aca reutilizamos código pero la carga de trabajo es significativamente mayor a la solución siguiente
