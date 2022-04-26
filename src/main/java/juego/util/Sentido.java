@@ -1,5 +1,7 @@
 package juego.util;
 
+import juego.textui.Kamisado;
+
 /**
  * Sentido para comprobar celdas adyacentes.
  * 
