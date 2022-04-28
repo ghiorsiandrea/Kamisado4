@@ -91,10 +91,7 @@ public class ArbitroEstandar extends ArbitroAbstracto {
 
     @Override
     public boolean estaAcabadaPartida() {
-        if (numeroPuntosTurnoNegro >= 3 || numeroPuntosTurnoBlanco >= 3) {
-            return true;
-        }
-        return false;
+        return numeroPuntosTurnoNegro >= 3 || numeroPuntosTurnoBlanco >= 3;
     }
 
     @Override
@@ -260,11 +257,13 @@ public class ArbitroEstandar extends ArbitroAbstracto {
                     sentido.obtenerDesplazamientoEnFilas();
             int columnaPosibleMovimiento = celdaTurnoActualUtimoMovimiento.obtenerColumna() +
                     sentido.obtenerDesplazamientoEnColumnas();
-            Celda celdaPosibleMovimiento = null;
+            Celda celdaPosibleMovimiento;
             try {
                 celdaPosibleMovimiento = tablero.obtenerCelda(filaPosibleMovimiento, columnaPosibleMovimiento);
-            } catch (CoordenadasIncorrectasException e) {
-                e.printStackTrace();
+            } catch (CoordenadasIncorrectasException ignored) {
+                //Si al obtener celda, uno de los posibles sentidos para el turno actual se encuentra bloqueado, no
+                // deberia detenerse el juego o aparecer la ruta del error durante la partida
+                continue;
             }
 
             // Aca reutilizamos código pero la carga de trabajo es significativamente mayor a la solución siguiente

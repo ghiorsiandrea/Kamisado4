@@ -2,6 +2,7 @@ package juego.textui;
 
 import com.diogonunes.jcolor.Attribute;
 import juego.control.Arbitro;
+import juego.control.ArbitroAbstracto;
 import juego.control.ArbitroEstandar;
 import juego.control.ArbitroSimple;
 import juego.modelo.Celda;
@@ -10,6 +11,7 @@ import juego.modelo.Tablero;
 import juego.modelo.Turno;
 import juego.util.CoordenadasIncorrectasException;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static com.diogonunes.jcolor.Ansi.colorize;
@@ -69,36 +71,60 @@ public class Kamisado {
         //System.out.println(extraerModoArbitro(args));
 
         mostrarMensajeBienvenida();
-        inicializarPartida(configuracion = "simple");
+        inicializarPartida("simple");
         String inicioJuego;
         do {
             inicioJuego = scanner.nextLine().toLowerCase();
             switch (inicioJuego) {
+                case "reglas" -> {
+                    reglas();
+                    mostrarMensajeBienvenida2();
+                }
                 case "texto" -> {
                     mostrarTableroEnFormatoTexto();
-                    mostrarMensajeBienvenida();
+                    mostrarMensajeBienvenida2();
                 }
-                case "elegir" -> elegirModoJuego();
+                case "color" -> {
+                    mostrarTableroEnPantalla();
+                    mostrarMensajeBienvenida2();
+                }
+                case "elegir" -> {
+                    elegirModoJuego();
+                    decidirSiJugarNuevamente();
+                }
                 case "salir" -> System.out.println("El usuario ha decidido salir del juego. Vuelva pronto");
-                default -> mostrarErrorEnFormatoDeEntrada();
+                default -> defaultAction();
             }
+
         }
         while (!inicioJuego.equals("salir"));
-        finalizarPartida();
 
     }
 
     private static void elegirModoJuego() {
         do {
-            String modoJuego = recogerModoJuego().toLowerCase();
+            String modoJuego = recogerInicioJuego().toLowerCase();
 
             switch (modoJuego) {
-                case "simple" -> jugarPartidaSimple();
-                case "estandar" -> jugarPartidaEstandar();
-                default -> mostrarErrorEnFormatoDeEntrada();
+                case "simple" -> {
+                    inicializarPartida("simple");
+                    jugarPartidaSimple();
+                }
+
+                case "estandar" -> {
+                    inicializarPartida("estandar");
+                    jugarPartidaEstandar();
+                }
+                default -> defaultAction();
             }
         } while ((arbitro.consultarGanadorPartida() == null));
         finalizarPartida();
+    }
+
+    private static void defaultAction() {
+        if (arbitro.consultarGanadorRonda() == null) {
+            mostrarErrorEnFormatoDeEntrada();
+        }
     }
 
     private static void jugarPartidaSimple() {
@@ -107,57 +133,140 @@ public class Kamisado {
         do {
             String jugada = recogerJugadaSimple().toLowerCase();
 
-            switch (jugada) {
-
-                case "salir":
-                    mostrarInterrupcionPartida();
-                    System.out.println("El usuario ha decidido salir del juego. Vuelva pronto");
-                    break;
-                case "texto":
-                    mostrarTableroEnFormatoTexto();
-                    break;
-                default:
-                    if (validarFormato(jugada)) {
-                        realizarJugada((jugada));
-                        mostrarTableroEnPantalla();
-                        mostrarInformacionUltimoMovimiento();
-                    } else {
-                        mostrarErrorEnFormatoDeEntrada();
-                    }
-            }
+            if (validarFormato(jugada)) {
+                realizarJugada((jugada));
+                mostrarTableroEnPantalla();
+                mostrarInformacionUltimoMovimiento();
+            } else defaultAction();
         } while (arbitro.consultarGanadorRonda() == null);
-        finalizarPartida();
-
     }
 
     private static void jugarPartidaEstandar() {
 
         System.out.println("Disfrute de la partida en modo estandar");
         mostrarTableroEnPantalla();
+        inicializarPartida("estandar");
         do {
             String jugada = recogerJugada().toLowerCase();
             if (validarFormato(jugada)) {
                 realizarJugada((jugada));
                 mostrarTableroEnPantalla();
                 mostrarInformacionUltimoMovimiento();
-            } else {
-                mostrarErrorEnFormatoDeEntrada();
+            } else if (!comprobarSiFinalizaPartida()) {
+                defaultAction();
+            } else if (comprobarSiFinalizaPartida()) {
+                comprobarSiFinalizaPartida();
             }
-        } while (arbitro.consultarGanadorRonda() == null);
+            mostrarPuntuaciones();
+        } while (!comprobarSiFinalizaPartida());
+
+        if (comprobarSiFinalizaPartida()) {
+            arbitro.reiniciarRonda();
+        }
     }
+
+    private static void decidirSiJugarNuevamente() {
+        System.out.println("¿Desea continuar jugando?");
+        System.out.println("Para salir del menú de opciones introduzca \"salir\".");
+        System.out.println("Para seguir jugando y escoger el modo juego introduzca \"elegir\".\n");
+
+        String decidirSiSeguirONo = scanner.nextLine().toLowerCase();
+        switch (decidirSiSeguirONo) {
+            case "salir" -> System.out.println("El usuario ha decidido salir del juego. Vuelva pronto");
+            case "elegir" -> elegirModoJuego();
+        }
+    }
+
+    private static void reglas() {
+
+        System.out.println("\nPara las reglas generales introduzca \"generales\".");
+        System.out.println("Para las reglas de la partida simple introduzca \"simple\".");
+        System.out.println("Para las reglas de la partida estandar introduzca \"estandar\".\n");
+
+        String reglas = scanner.nextLine().toLowerCase();
+        switch (reglas) {
+            case "generales" -> System.out.println("Reglas generales\n" +
+            "Kamisado es un juego abstracto de tablero de 8x8 celdas, para dos jugadores. Las celdas tienen un color\n" +
+            "asignado fijo, de entre solo ocho colores posibles (i.e. amarillo, azul, marrón, naranja, púrpura, rojo, \n" +
+            "rosa, y verde). Sobre dicho tablero se colocan 8 torres1 blancas en la fila superior del tablero, y 8\n" +
+            "torres negras en la fila inferior del tablero. A partir de ahora diremos que las torres tienen un turno ,\n" +
+            "blanco o negro, según corresponda.\n" +
+            "A cada jugador, se le asignan sus 8 torres correspondientes. Adicionalmente, cada torre además del\n" +
+            "turno (blanco o negro), tiene asignado un color de entre esos ocho. La colocación de las torres de\n" +
+            "cada turno, al inicio de la partida, coincide con el color de la celda. Por ejemplo, la torre negra de\n" +
+            "color amarillo, se colocará en la fila inferior, en la celda de color amarillo.\n" +
+            "Por simplificacion, siempre comienza la partida el jugador con turno negro. En este primer turno, puede\n" +
+            "mover discrecionalmente una de sus torres a otra celda vacía. El color de la celda donde se coloca la \n" +
+            "torre, determina que en el siguiente turno, el jugador contrario está obligado a mover su torre de dicho\n" +
+            "color.\n" +
+            "Por lo tanto, solo es discrecional el primer movimiento de salida en cada ronda. El resto de movimientos\n" +
+            "están siempre condicionados por el color de la celda a donde movió en último lugar el jugador contrario.\n" +
+                    "___________________________FIN REGLAS GENERALES___________________________\n");
+
+            case "simple" -> System.out.println("Partida simple\n" +
+            "Los movimientos de las torres están limitados por las siguientes reglas:\n" +
+            "• Solo se puede mover una torre del turno actual hacia la fila de inicio del contrario, solo en sentido\n" +
+            "vertical o diagonal (i.e. solo se puede avanzar hacia la fila de partida del contrario, pero nunca \n" +
+            "retroceder).\n" +
+            "• No se puede saltar sobre otras torres, independientemente del turno que tengan (ni siquiera sobre\n" +
+            "torres propias).\n" +
+            "• No se puede ocupar una celda que contenga otra torre. En este juego no se “comen” o eliminan torres \n" +
+            "del contrario (ni propias).\n" +
+            "• El jugador con turno está obligado a mover siempre que haya algún movimiento legal. No puede pasar turno.\n" +
+            "La partida simple finaliza en la primera ronda, cuando uno de los jugadores consigue colocar una\n" +
+            "de sus torres en la fila de salida del turno contrario sumando 1 punto. A la partidas simple se las\n" +
+            "considera de ronda única, finalizando al conseguir un punto.\n" +
+            "Para indicar las celdas del tablero, los jugadores utilizarán la misma notación utilizada en el ajedrez, \n" +
+            "denominada “notación algebraica”. Por ejemplo y según se muestra en la Ilustración 1, la celda [0][0]\n" +
+            "sería \"a8\", la celda [3][4] sería \"e5\" y la celda [6][5] sería \"f2\". Cuando se quiere mencionar \n" +
+            "una jugada completa, moviendo una torre de una celda origen a una celda destino, se indicarán las dos " +
+            "celdas seguidas. \n" +
+            "Por ejemplo: \"a1c3\" sería una jugada donde se mueve la torre desde la celda [7][0] a la celda en [5][2].\n" +
+            "Si un jugador está obligado a mover una torre, y dicha torre está bloqueada (según las reglas), se \n" +
+            "considera que hace un movimiento de “distancia cero”, colocando su torre en la misma celda en la que \n" +
+            "estaba, y por lo tanto el jugador contrario ahora tendrá que mover su torre del color de dicha celda \n" +
+            "en la que ha quedado bloqueado el contrario.\n" +
+            "Si se diese la situación de que el bloqueo se da en ambos jugadores, denominado bloqueo mutuo o\n" +
+            "deadlock, se considera finalizada, dando como perdedor al jugador que provocó dicha situación con un\n" +
+            "movimiento de torre. Es decir, pierde el jugador que hizo el último movimiento que no fuera de \n" +
+            "“distancia cero”.\n" +
+                    "___________________________FIN REGLAS PARTIDA SIMPLE___________________________\n");
+            case "estandar" -> System.out.println("""
+             Partida estándar
+             En esta segunda versión de la práctica, se amplía con la posiblidad de jugar partidas estándar, con\s
+             varias rondas.
+             La partida se inicia igual que una partida simple. En una partida estándar las torres que alcanzan la\s
+             fila del contrario suman 1 punto al turno correspondiente y además dicha torre se transforma en una \s
+             "torre sumo uno" (en algunas versiones del juego se añade un “diente de dragón”), finalizando la ronda
+             y reiniciando las torres a la posición inicial para iniciar otra ronda. Se colocan de nuevo las torres
+             en la posición de partida, incluyendo ahora la nueva “torre sumo uno” en su color correspondiente. Inicia
+              la nueva ronda el turno que perdió la ronda previa.
+             Si se alcanza la fila del contrario con una torre sumo uno se consiguen 3 puntos.
+             Se considera que se finaliza la partida cuando un turno consigue 3 o más puntos, al sumar los puntos\s
+             acumulados en distintas rondas con torres simples o torres sumo uno.
+             Las torres sumo uno tienen unas reglas de movimiento adicionales:
+             • Solo pueden desplazarse un máximo de una distancia de 5 celdas en cualquiera de los sentidos
+             básicos (vertical o diagonal).
+             • Pueden “empujar” una posición hacia delante a torres del contrario que la bloqueen (denominado
+             “empujón sumo”), pero solo en sentido vertical:
+             ◦ Solo pueden empujar una torre del turno contrario.
+             ◦ Detrás de esa torre empujada, debe haber una celda vacía. No se puede “empujar” o echar
+             torres del turno contrario fuera del tablero.
+             ◦ No se puede empujar a otra “torre sumo uno” del contrario, solo a una torre simple.
+             ◦ Cuando se produce un “empujón sumo”, el turno contrario pierde turno y vuelve a mover el
+             turno que realizó el empujón.
+             ◦ El color de la torre a mover, tras el empujón, se obtiene del color de la celda donde ha quedado\s
+             situada la torre del contrario.
+             ___________________________FIN REGLAS PARTIDA ESTANDAR___________________________\s
+             """);
+            }
+        }
+
 
     /**
      * Recoge modo juego del teclado.
      */
     private static String recogerInicioJuego() {
-        System.out.print("Introduzca el modo del juego deseado: Simple o Estandar \n");
-        return scanner.next();
-    }
-
-    /**
-     * Recoge modo juego del teclado.
-     */
-    private static String recogerModoJuego() {
         System.out.print("Introduzca el modo del juego deseado: Simple o Estandar \n");
         return scanner.next();
     }
@@ -207,8 +316,10 @@ public class Kamisado {
      * problemas con la visualización gráfica o con usuarios con daltonismo.
      */
     private static void mostrarTableroEnFormatoTexto() {
+        System.out.println("A continuación se mostrará el estado del tablero en formato texto");
         System.out.println();
         System.out.println(tablero.toString());
+        System.out.println("Se desplegará nuevamente el menú de opciones para que pueda escoger si desea o no continuar en el juego");
     }
 
     /**
@@ -245,7 +356,7 @@ public class Kamisado {
                 arbitro.moverConTurnoActual(origen, destino);
                 if (!arbitro.estaAcabadaRonda()) { // FIX 4.0
                     if (arbitro.estaBloqueadoTurnoActual()) {
-                        System.out.println("Bloqueada la torre " + destino.obtenerColor() + " del jugador con turno "
+                        System.out.println("Bloqueada la torre " + Objects.requireNonNull(destino).obtenerColor() + " del jugador con turno "
                                 + arbitro.obtenerTurno() + ".");
                         System.out.println("Se realiza un movimiento de distancia cero y pierde el turno.\n");
                         arbitro.moverConTurnoActualBloqueado();
@@ -294,10 +405,21 @@ public class Kamisado {
      * Muestra el mensaje de bienvenida con instrucciones para finalizar la partida.
      */
     private static void mostrarMensajeBienvenida() {
-        System.out.println("Bienvenido al juego del Kamisado");
-        System.out.println("Para interrumpir partida introduzca \"salir\".");
+        System.out.println("\n__________Bienvenido al juego del Kamisado__________\n");
+        System.out.println("Para mostrar las reglas del juego introduzca \"reglas\".");
         System.out.println("Para mostrar el estado del tablero en formato texto introduzca \"texto\".");
+        System.out.println("Para mostrar el estado del tablero en formato color introduzca \"color\".");
         System.out.println("Para escoger el modo del juego (Simple o Estandar) introduzca \"elegir\".");
+        System.out.println("Para interrumpir partida introduzca \"salir\".\n");
+    }
+
+    private static void mostrarMensajeBienvenida2() {
+        System.out.println("\n___Bienvenido nuevamente al menú de opciones del juego del Kamisado___\n");
+        System.out.println("Para mostrar las reglas del juego introduzca \"reglas\".");
+        System.out.println("Para mostrar el estado del tablero en formato texto introduzca \"texto\".");
+        System.out.println("Para mostrar el estado del tablero en formato color introduzca \"color\".");
+        System.out.println("Para escoger el modo del juego (Simple o Estandar) introduzca \"elegir\".");
+        System.out.println("Para interrumpir partida introduzca \"salir\".\n");
     }
 
     /**
@@ -307,8 +429,8 @@ public class Kamisado {
     private static void mostrarErrorEnFormatoDeEntrada() {
         System.out.println();
         System.out.println("Error en el formato de entrada.");
-        System.out.println("El formato debe ser letranumeroletranumero para mover torre, por ejemplo a7a5 o g1f3");
-        System.out.println("El formato debe ser letranumero para realizar empujón con torre sumo, por ejemplo a7 o g1");
+        System.out.println("El formato debe ser letra numero letra numero para mover torre, por ejemplo a7a5 o g1f3");
+        System.out.println("El formato debe ser letra numero para realizar empujón con torre sumo, por ejemplo a7 o g1");
         System.out.println("Las letras deben estar en el rango [a,h] y los números en el rango [1,8]\n");
     }
 
@@ -342,9 +464,13 @@ public class Kamisado {
      */
     private static void finalizarPartida() {
         if (arbitro.consultarGanadorPartida() != null) {
-            System.out.printf("Partida finalizada ganando las torres de turno %s.", arbitro.consultarGanadorPartida());
+            System.out.printf("""
+                    Partida finalizada ganando las torres de turno %s.
+                    """, arbitro.consultarGanadorPartida());
         } else {
-            System.out.printf("Partida finalizada, vuelva pronto");
+            System.out.print("""
+                    Partida finalizada.
+                    """);
         }
     }
 
@@ -460,7 +586,7 @@ public class Kamisado {
      * @return color de texto
      */
     private static Attribute elegirColorTexto(Color color) {
-        Attribute colorTexto = switch (color) {
+        return switch (color) {
             case AMARILLO -> TEXT_COLOR(223, 227, 12); // BRIGHT_YELLOW_TEXT();
             case AZUL -> BRIGHT_BLUE_TEXT();
             case MARRON -> TEXT_COLOR(110, 44, 0);
@@ -470,7 +596,6 @@ public class Kamisado {
             case PURPURA -> TEXT_COLOR(155, 89, 182);
             case VERDE -> BRIGHT_GREEN_TEXT();
         };
-        return colorTexto;
     }
 
     /**
@@ -480,7 +605,7 @@ public class Kamisado {
      * @return color de fondo
      */
     private static Attribute elegirColorFondo(Color color) {
-        Attribute colorFondo = switch (color) {
+        return switch (color) {
             case AMARILLO -> BRIGHT_YELLOW_BACK();
             case AZUL -> BRIGHT_BLUE_BACK();
             case MARRON -> BACK_COLOR(110, 44, 0);
@@ -490,7 +615,6 @@ public class Kamisado {
             case PURPURA -> BACK_COLOR(155, 89, 182);
             case VERDE -> BRIGHT_GREEN_BACK();
         };
-        return colorFondo;
     }
 
     /**
@@ -536,12 +660,14 @@ public class Kamisado {
      * disponibles del tablero
      */
     private static boolean validarFormato(String jugada) {
-        boolean estado = true;
-        if (jugada.length() != TAMAÑO_JUGADA || esLetraInvalida(jugada.charAt(0)) || esLetraInvalida(jugada.charAt(2))
-                || esNumeroInvalido(jugada.charAt(1)) || esNumeroInvalido(jugada.charAt(3))) {
-            estado = false;
-        }
-        return estado;
+//        boolean estado = true;
+//        if (jugada.length() != TAMAÑO_JUGADA || esLetraInvalida(jugada.charAt(0)) || esLetraInvalida(jugada.charAt(2))
+//                || esNumeroInvalido(jugada.charAt(1)) || esNumeroInvalido(jugada.charAt(3))) {
+//            estado = false;
+//        }
+//        return estado;
+        return jugada.length() == TAMAÑO_JUGADA && !esLetraInvalida(jugada.charAt(0)) && !esLetraInvalida(jugada.charAt(2))
+                && !esNumeroInvalido(jugada.charAt(1)) && !esNumeroInvalido(jugada.charAt(3));
     }
 
     /**
